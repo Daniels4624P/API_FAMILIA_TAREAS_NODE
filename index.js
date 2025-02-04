@@ -6,7 +6,6 @@ const { ormErrorHandler, boomErrorHandler, errorHandler } = require('./middlewar
 const routerApi = require('./routes/index')
 
 app.use(express.json())
-app.use(cors())
 
 require('./utils/auth/index')
 
