@@ -12,7 +12,13 @@ const sequelize = new Sequelize(URI, {
         min: 0,
         acquire: 30000,
         idle: 10000
-    }
+    },
+    dialectOptions: {
+        ssl: {
+          require: true, // Esto fuerza el uso de SSL
+          rejectUnauthorized: false, // Esto evita errores con certificados autofirmados
+        },
+      },
 })
 
 setupModels(sequelize)
