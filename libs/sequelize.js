@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize')
 const config = require('./../config/config')
 const setupModels = require('./../db/models/index')
 
-const URI = `postgres://${config.dbUser}:${config.dbPassword}@${config.dbHost}:${config.dbPort}/${config.dbName}`
+const URI = `postgresql://${config.dbUser}:${config.dbPassword}@${config.dbHost}/${config.dbName}`
 
 const sequelize = new Sequelize(URI, {
     dialect: 'postgres',
