@@ -39,6 +39,7 @@ class Task extends Model {
     static associate(models) {
         this.belongsTo(models.Folder, { as: 'folder', foreignKey: 'folderId' })
         this.hasOne(models.HystoryTask, { as: 'hystory', foreignKey: 'taskId' })
+        this.hasMany(models.UserTaskCompletion, { as: 'userTaskCompletion', foreignKey: 'taskId' })
     }
     
     static config(sequelize) {

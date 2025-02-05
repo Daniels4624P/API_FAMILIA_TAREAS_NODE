@@ -70,7 +70,7 @@ class TaskService {
         return { id }
     }
 
-    async completeTask(id, userId) {
+    async completeTaskPrivate(id, userId) {
             const task = await models.Task.findOne({
                 where: { id },
                 include: {
@@ -93,6 +93,43 @@ class TaskService {
                 ownerId: userId
             })
             return task
+    }
+
+    async completeTaskPublic(id, userId) {
+        const task = await models.Task.findOne({
+            where: { id },
+            include: {
+                model: models.Folder,
+                as: 'folder',
+                attributes: ['id', 'public', 'owner']
+            }
+        })
+        if (!task) {
+            throw boom.notFound('Tarea no encontrada');
+        }
+        if (!task.folder.public && task.folder.owner !== userId) {
+            throw boom.unauthorized('No tienes permiso para completar esta tarea');
+        }
+        const existingCompletion = await models.UserTaskCompletion.findOne({
+            where: { taskId: id, userId }
+        });
+    
+        if (existingCompletion) {
+            throw boom.conflict('Ya has completado esta tarea');
+        }
+    
+        // Registrar la finalización de la tarea en la tabla intermedia
+        await models.UserTaskCompletion.create({
+            taskId: id,
+            userId
+        });
+        const user = await models.User.findByPk(userId)
+        await user.update({ points: user.points + task.points })
+        await models.HystoryTask.create({
+            taskId: task.dataValues.id,
+            ownerId: userId
+        })
+        return task
     }
 
     async descompletedTasks() {
