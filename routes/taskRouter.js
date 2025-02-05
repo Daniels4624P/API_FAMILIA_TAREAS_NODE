@@ -48,13 +48,27 @@ router.delete('/:id',
     }
 )
 
-router.patch('/:id/complete',
+router.patch('/:id/complete/task/public',
     passport.authenticate('jwt',  { session: false }),
     async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { id } = req.params
-            const response = await service.completeTask(id, userId)
+            const response = await service.completeTaskPublic(id, userId)
+            res.json(response)
+        } catch (err) {
+            next(err)
+        }
+    }
+)
+
+router.patch('/:id/complete/task/private',
+    passport.authenticate('jwt',  { session: false }),
+    async (req, res, next) => {
+        try {
+            const userId = req.user.sub
+            const { id } = req.params
+            const response = await service.completeTaskPrivate(id, userId)
             res.json(response)
         } catch (err) {
             next(err)

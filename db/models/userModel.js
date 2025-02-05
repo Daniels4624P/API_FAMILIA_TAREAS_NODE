@@ -36,6 +36,7 @@ class User extends Model {
         this.hasMany(models.Proyect, { as: 'proyects', foreignKey: 'owner' })
         this.hasMany(models.Folder, { as: 'folders', foreignKey: 'owner' })
         this.hasMany(models.HystoryTask, { as: 'historyTasks', foreignKey: 'ownerId' });
+        this.hasMany(models.UserTaskCompletion, { as: 'userTaskCompletion', foreignKey: 'userId' });
     }
     
     static config(sequelize) {
