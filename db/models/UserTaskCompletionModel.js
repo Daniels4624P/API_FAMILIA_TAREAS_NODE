@@ -27,6 +27,11 @@ const userTaskCompletionSchema = {
         },
         onDelete: 'CASCADE'
     },
+    hecha: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: Sequelize.NOW
+    }
 }
 
 class UserTaskCompletion extends Model {
