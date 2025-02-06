@@ -30,7 +30,7 @@ const userTaskCompletionSchema = {
     hecha: {
         allowNull: false,
         type: DataTypes.DATE,
-        defaultValue: Sequelize.NOW
+        defaultValue: DataTypes.NOW
     }
 }
 
