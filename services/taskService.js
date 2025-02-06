@@ -110,8 +110,18 @@ class TaskService {
         if (!task.folder.public && task.folder.owner !== userId) {
             throw boom.unauthorized('No tienes permiso para completar esta tarea');
         }
+
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
         const existingCompletion = await models.UserTaskCompletion.findOne({
-            where: { taskId: id, userId }
+            where: {
+                taskId: id,
+                userId,
+                hecha: {
+                    [Op.gte]: startOfToday
+                }
+            }
         });
     
         if (existingCompletion) {
