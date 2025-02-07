@@ -156,7 +156,7 @@ class TaskService {
         if (!year || !month) {
             const lastTask = await models.HystoryTask.findOne({
                 attributes: [[Sequelize.fn('MAX', Sequelize.col('hecha')), 'lastDate']],
-                where: { userId }
+                where: { ownerId:userId }
             })
             
             if (lastTask && lastTask.dataValues.lastDate) {
@@ -176,7 +176,7 @@ class TaskService {
                 [Sequelize.fn('COUNT', Sequelize.col('id'), 'taskCount')]
             ],
             where: { 
-                userId,
+                ownerId: userId,
                 hecha: {
                     [Sequelize.Op.between]: [
                         `${year}-${month}-01T00:00:00.000Z`,
