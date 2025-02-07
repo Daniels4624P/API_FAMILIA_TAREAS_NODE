@@ -156,7 +156,7 @@ class TaskService {
         if (!year || !month) {
             const lastTask = await models.HystoryTask.findOne({
                 attributes: [[Sequelize.fn('MAX', Sequelize.col('hecha')), 'lastDate']],
-                where: { ownerId:userId }
+                where: { ownerId: userId }
             })
             
             if (lastTask && lastTask.dataValues.lastDate) {
@@ -168,7 +168,7 @@ class TaskService {
             }
         }
 
-        month = month.toString().padStart(2, '0')
+        month = String(month).padStart(2, '0')
 
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0, 23, 59, 59, 999);
@@ -179,7 +179,7 @@ class TaskService {
 
         const taskPerMonth = await models.HystoryTask.findAll({
             attributes: [
-                [Sequelize.fn('DATE_TRUNC', 'day', Sequelize.col('hecha')), 'day'],
+                [Sequelize.fn('DATE_TRUNC', 'week', Sequelize.col('hecha')), 'week'],
                 [Sequelize.fn('COUNT', Sequelize.col('id')), 'taskCount']
             ],
             where: { 
@@ -188,8 +188,8 @@ class TaskService {
                 [Sequelize.Op.between]: [startDate, endDate]
                 }
             },
-            group: ['day'],
-            oder: [['day', 'ASC']]
+            group: ['week'],
+            order: [['week', 'ASC']]
         })
 
         return taskPerMonth
