@@ -17,6 +17,7 @@ module.exports = {
               require: true,  // Requerir SSL
               rejectUnauthorized: false // Evitar errores por certificados autofirmados
             }
-          }
+          },
+        timezone: "-05:00"
     }
 }
