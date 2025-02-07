@@ -88,4 +88,18 @@ router.patch('/descompleted/tasks',
     }
 )
 
+router.get('/tasks/monthly',
+    passport.authenticate('jwt',  { session: false }),
+    async (req, res, next) => {
+        try {
+            const query = req.query
+            const user = req.user.sub
+            const response = await service.tasksForMonth(user, query)
+            res.json(response)
+        } catch (err) {
+            next(err)
+        }
+    }
+)
+
 module.exports = router
