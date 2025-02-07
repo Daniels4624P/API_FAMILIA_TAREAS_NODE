@@ -19,6 +19,7 @@ const sequelize = new Sequelize(URI, {
           rejectUnauthorized: false, // Esto evita errores con certificados autofirmados
         },
       },
+    timezone: "-05:00"
 })
 
 setupModels(sequelize)
