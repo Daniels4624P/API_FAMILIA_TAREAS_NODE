@@ -1,6 +1,6 @@
 const boom = require('@hapi/boom')
 const { models } = require('./../libs/sequelize')
-const { Op } = require('sequelize')
+const { Op, Sequelize } = require('sequelize')
 
 class TaskService {
     async createTask(data, userId) {
