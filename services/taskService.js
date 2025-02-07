@@ -170,8 +170,8 @@ class TaskService {
 
         month = month.toString().padStart(2, '0')
 
-        const startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
-        const endDate = new Date(`${year}-${month}-31T23:59:59.999Z`);
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
         if (isNaN(startDate) || isNaN(endDate)) {
         throw boom.badRequest('Fecha inválida generada');
