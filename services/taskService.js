@@ -183,7 +183,7 @@ class TaskService {
                 [Sequelize.fn('COUNT', Sequelize.col('id')), 'taskCount']
             ],
             where: { 
-                userId,
+                ownerId: userId,
                 hecha: {
                 [Sequelize.Op.between]: [startDate, endDate]
                 }
