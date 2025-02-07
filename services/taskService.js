@@ -149,6 +149,47 @@ class TaskService {
         );
         return { message: 'Tareas Descompletadas' }
     }
+
+    async tasksForMonth(userId, query) {
+        const { year, month } = query
+
+        if (!year || !month) {
+            const lastTask = await models.HystoryTask.findOne({
+                attributes: [[Sequelize.fn('MAX', Sequelize.col('hecha')), 'lastDate']],
+                where: { userId }
+            })
+            
+            if (lastTask && lastTask.dataValues.lastDate) {
+                const lastDate = new Date(lastTask.dataValues.lastDate)
+                year = lastDate.getFullYear()
+                month = lastDate.getMonth() + 1
+            } else {
+                throw boom.notFound('No hay tareas registradas')
+            }
+        }
+
+        month = month.toString().padStart(2, '0')
+
+        const taskPerMonth = await models.HystoryTask.findAll({
+            attributes: [
+                [Sequelize.fn('DATE_TRUNC', 'day', Sequelize.col('hecha')), 'day'],
+                [Sequelize.fn('COUNT', Sequelize.col('id'), 'taskCount')]
+            ],
+            where: { 
+                userId,
+                hecha: {
+                    [Sequelize.Op.between]: [
+                        `${year}-${month}-01T00:00:00.000Z`,
+                        `${year}-${month}-31T23:59:59.999Z`
+                    ]
+                }
+            },
+            group: ['day'],
+            oder: [['day', 'ASC']]
+        })
+
+        return taskPerMonth
+    }
 }
 
 module.exports = TaskService
