@@ -151,7 +151,7 @@ class TaskService {
     }
 
     async tasksForMonth(userId, query) {
-        const { year, month } = query
+        let { year, month } = query
 
         if (!year || !month) {
             const lastTask = await models.HystoryTask.findOne({
