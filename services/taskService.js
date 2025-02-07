@@ -170,18 +170,22 @@ class TaskService {
 
         month = month.toString().padStart(2, '0')
 
+        const startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
+        const endDate = new Date(`${year}-${month}-31T23:59:59.999Z`);
+
+        if (isNaN(startDate) || isNaN(endDate)) {
+        throw boom.badRequest('Fecha inválida generada');
+        }
+
         const taskPerMonth = await models.HystoryTask.findAll({
             attributes: [
                 [Sequelize.fn('DATE_TRUNC', 'day', Sequelize.col('hecha')), 'day'],
                 [Sequelize.fn('COUNT', Sequelize.col('id')), 'taskCount']
             ],
             where: { 
-                ownerId: userId,
+                userId,
                 hecha: {
-                    [Sequelize.Op.between]: [
-                        `${year}-${month}-01T00:00:00.000Z`,
-                        `${year}-${month}-31T23:59:59.999Z`
-                    ]
+                [Sequelize.Op.between]: [startDate, endDate]
                 }
             },
             group: ['day'],
