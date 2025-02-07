@@ -173,7 +173,7 @@ class TaskService {
         const taskPerMonth = await models.HystoryTask.findAll({
             attributes: [
                 [Sequelize.fn('DATE_TRUNC', 'day', Sequelize.col('hecha')), 'day'],
-                [Sequelize.fn('COUNT', Sequelize.col('id'), 'taskCount')]
+                [Sequelize.fn('COUNT', Sequelize.col('id')), 'taskCount']
             ],
             where: { 
                 ownerId: userId,
