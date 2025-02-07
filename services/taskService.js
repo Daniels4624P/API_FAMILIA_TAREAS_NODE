@@ -150,33 +150,33 @@ class TaskService {
         return { message: 'Tareas Descompletadas' }
     }
 
-    async tasksForMonth(userId, query) {
-        let { year, month } = query
-
+    async tasksForMonth(userId, query) { 
+        let { year, month } = query;
+    
         if (!year || !month) {
             const lastTask = await models.HystoryTask.findOne({
                 attributes: [[Sequelize.fn('MAX', Sequelize.col('hecha')), 'lastDate']],
                 where: { ownerId: userId }
-            })
-            
+            });
+    
             if (lastTask && lastTask.dataValues.lastDate) {
-                const lastDate = new Date(lastTask.dataValues.lastDate)
-                year = lastDate.getFullYear()
-                month = lastDate.getMonth() + 1
+                const lastDate = new Date(lastTask.dataValues.lastDate);
+                year = lastDate.getUTCFullYear();  // Asegurar consistencia con UTC
+                month = lastDate.getUTCMonth() + 1;
             } else {
-                throw boom.notFound('No hay tareas registradas')
+                throw boom.notFound('No hay tareas registradas');
             }
         }
-
-        month = String(month).padStart(2, '0')
-
-        const startDate = new Date(year, month - 1, 1);
-        const endDate = new Date(year, month, 0, 23, 59, 59, 999);
-
+    
+        month = String(month).padStart(2, '0');
+    
+        const startDate = new Date(Date.UTC(year, month - 1, 1));
+        const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+    
         if (isNaN(startDate) || isNaN(endDate)) {
-        throw boom.badRequest('Fecha inválida generada');
+            throw boom.badRequest('Fecha inválida generada');
         }
-
+    
         const taskPerMonth = await models.HystoryTask.findAll({
             attributes: [
                 [Sequelize.fn('DATE_TRUNC', 'week', Sequelize.col('hecha')), 'week'],
@@ -185,14 +185,14 @@ class TaskService {
             where: { 
                 ownerId: userId,
                 hecha: {
-                [Sequelize.Op.between]: [startDate, endDate]
+                    [Sequelize.Op.between]: [startDate, endDate]
                 }
             },
-            group: ['week'],
+            group: [Sequelize.fn('DATE_TRUNC', 'week', Sequelize.col('hecha'))], // Asegurar agrupación correcta
             order: [['week', 'ASC']]
-        })
-
-        return taskPerMonth
+        });
+    
+        return taskPerMonth;
     }
 }
 
