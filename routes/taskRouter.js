@@ -88,7 +88,7 @@ router.patch('/descompleted/tasks',
     }
 )
 
-router.get('/tasks/monthly',
+router.get('/monthly',
     passport.authenticate('jwt',  { session: false }),
     async (req, res, next) => {
         try {
