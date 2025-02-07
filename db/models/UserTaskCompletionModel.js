@@ -1,4 +1,4 @@
-const { Model, DataTypes } = require('sequelize')
+const { Model, DataTypes, Sequelize } = require('sequelize')
 
 const USER_TASK_COMPLETION_TABLE = 'User_Task_Completion'
 
@@ -27,6 +27,11 @@ const userTaskCompletionSchema = {
         },
         onDelete: 'CASCADE'
     },
+    hecha: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
 }
 
 class UserTaskCompletion extends Model {

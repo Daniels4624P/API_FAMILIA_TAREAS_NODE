@@ -17,9 +17,6 @@ app.use(ormErrorHandler)
 app.use(boomErrorHandler)
 app.use(errorHandler)
 
-<<<<<<< HEAD
-app.listen(config.port, () => console.log(`La API esta corriendo en el puerto ${config.port}`))
-=======
 app.post('/rellenar', async (req, res, next) => {
     try {
         const tasks = [
@@ -59,4 +56,3 @@ app.post('/rellenar', async (req, res, next) => {
 })
 
 app.listen(config.port, () => console.log(`La API esta corriendo en el puerto ${config.port}`))
->>>>>>> 7f89e2e (Holas Mundos)

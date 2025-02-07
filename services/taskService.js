@@ -1,6 +1,7 @@
 const boom = require('@hapi/boom')
 const { models } = require('./../libs/sequelize')
 const { Op } = require('sequelize')
+const { Sequelize } = require('sequelize')
 
 class TaskService {
     async createTask(data, userId) {
@@ -110,8 +111,18 @@ class TaskService {
         if (!task.folder.public && task.folder.owner !== userId) {
             throw boom.unauthorized('No tienes permiso para completar esta tarea');
         }
+
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
         const existingCompletion = await models.UserTaskCompletion.findOne({
-            where: { taskId: id, userId }
+            where: {
+                taskId: id,
+                userId,
+                hecha: {
+                    [Op.gte]: startOfToday
+                }
+            }
         });
     
         if (existingCompletion) {
@@ -138,6 +149,51 @@ class TaskService {
             { where: { completed: true } } // Solo descompletar las que están completadas
         );
         return { message: 'Tareas Descompletadas' }
+    }
+
+    async tasksForMonth(userId, query) {
+        let { year, month } = query
+
+        if (!year || !month) {
+            const lastTask = await models.HystoryTask.findOne({
+                attributes: [[Sequelize.fn('MAX', Sequelize.col('hecha')), 'lastDate']],
+                where: { ownerId: userId }
+            })
+            
+            if (lastTask && lastTask.dataValues.lastDate) {
+                const lastDate = new Date(lastTask.dataValues.lastDate)
+                year = lastDate.getFullYear()
+                month = lastDate.getMonth() + 1
+            } else {
+                throw boom.notFound('No hay tareas registradas')
+            }
+        }
+
+        month = String(month).padStart(2, '0')
+
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+        if (isNaN(startDate) || isNaN(endDate)) {
+        throw boom.badRequest('Fecha inválida generada');
+        }
+
+        const taskPerMonth = await models.HystoryTask.findAll({
+            attributes: [
+                [Sequelize.fn('DATE_TRUNC', 'week', Sequelize.col('hecha')), 'week'],
+                [Sequelize.fn('COUNT', Sequelize.col('id')), 'taskCount']
+            ],
+            where: { 
+                ownerId: userId,
+                hecha: {
+                [Sequelize.Op.between]: [startDate, endDate]
+                }
+            },
+            group: ['week'],
+            order: [['week', 'ASC']]
+        })
+
+        return taskPerMonth
     }
 }
 
