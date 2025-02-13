@@ -92,7 +92,9 @@ class UserService {
     }    
 
     async getScoreUsers() {
-        const users = await models.User.findAll()
+        const users = await models.User.findAll({
+            order: [['points', 'ASC']]
+        })
         const usersFormat = users.map(user => ({
             name: user.name,
             points: user.points
