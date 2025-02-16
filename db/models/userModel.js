@@ -28,6 +28,11 @@ const userSchema = {
     role: {
         type: DataTypes.ENUM('user', 'admin'),
         defaultValue: 'user'
+    },
+    recoveryToken: {
+        field: 'recovery_token',
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }
 
