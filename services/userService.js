@@ -100,7 +100,15 @@ class UserService {
             points: user.points
         }))
         return usersFormat
-    } 
+    }
+    
+    async update(userId, changes) {
+        const user = await models.User.findByPk(userId)
+        if (!user) {
+            throw boom.forbidden()
+        }
+        await user.update(changes)
+    }
 }
 
 module.exports = UserService
