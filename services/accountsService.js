@@ -16,9 +16,6 @@ class AccountsService {
                 userId
             }
         })
-        if (!accounts) {
-            throw boom.notFound('No se pudo crear la cuenta')
-        }
         return accounts
     }
 
