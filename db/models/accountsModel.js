@@ -50,7 +50,7 @@ class Accounts extends Model {
             sequelize,
             tableName: ACCOUNTS_TABLE,
             timestamps: false,
-            modelName: 'AccountsModel'
+            modelName: 'Accounts'
         }
     }
 }
