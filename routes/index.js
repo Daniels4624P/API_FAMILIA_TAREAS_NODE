@@ -7,6 +7,7 @@ const taskRouter = require('./taskRouter')
 const accountsRouter = require('./accountsRouter')
 const expensesRouter = require('./expensesRouter')
 const categoriesRouter = require('./categoriesRouter')
+const incomesRouter = require('./incomesRouter')
 
 const routerApi = (app) => {
     const router = express.Router()
@@ -19,6 +20,7 @@ const routerApi = (app) => {
     router.use('/accounts', accountsRouter)
     router.use('/expenses', expensesRouter)
     router.use('/categories', categoriesRouter)
+    router.use('/incomes', incomesRouter)
 }
 
 module.exports = routerApi
