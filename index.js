@@ -62,7 +62,7 @@ app.get('/finances/export',
     async (req, res, next) => {
         try {
             let { year, month } = req.query
-            const fastApiUrl = config.urlFastApi
+            const fastApiUrl = `${config.urlFastApi}/export/finances?year=${year || ""}&month=${month || ""}`
 
             const response = await axios.get(fastApiUrl, { responseType: "stream" });
 
