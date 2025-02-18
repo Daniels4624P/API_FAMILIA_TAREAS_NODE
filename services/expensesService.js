@@ -7,8 +7,6 @@ class ExpensesService {
         if (!newExpense) {
             throw boom.notFound('No se pudo crear el gasto')
         }
-        const account = await models.Accounts.findOne({ where: { id: expense.cuentaId }})
-        await account.dataValues.saldo - expense.valor
         return newExpense
     }
 
