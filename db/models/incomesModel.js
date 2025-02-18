@@ -19,6 +19,16 @@ const incomesSchema = {
         onDelete: 'CASCADE',
         allowNull: false
     },
+    categoriaId: {
+        type: DataTypes.INTEGER,
+        field: 'categoria_id',
+        references: {
+            model: 'Categories',
+            key: 'id'
+        },
+        allowNull: false,
+        onDelete: 'SET NULL'
+    },
     cuentaId: {
         type: DataTypes.INTEGER,
         field: 'cuenta_id',
@@ -49,6 +59,7 @@ class Incomes extends Model {
     static associate(models) {
         this.belongsTo(models.User, { as: 'user', foreignKey: 'userId' })
         this.belongsTo(models.Accounts, { as: 'account', foreignKey: 'cuentaId' })
+        this.belongsTo(models.Categories, { as: 'category', foreignKey: 'categoriaId' })
     }
 
     static config(sequelize) {
