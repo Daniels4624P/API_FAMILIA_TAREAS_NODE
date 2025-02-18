@@ -17,7 +17,8 @@ class IncomesService {
         const incomes = await models.Incomes.findAll({
             where: {
                 userId
-            }
+            },
+            include: ['account']
         })
         return incomes
     }
@@ -27,7 +28,8 @@ class IncomesService {
             where: {
                 userId,
                 id
-            }
+            },
+            include: ['account']
         })
         if (!income) {
             throw boom.notFound('No se encontro el ingreso')
