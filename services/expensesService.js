@@ -4,9 +4,12 @@ const { models } = require('./../libs/sequelize')
 class ExpensesService {
     async createExpense(expense) {
         const newExpense = await models.Expenses.create(expense)
-        if (!newExpense) {
+        const accountExpense = await models.Accounts.findByPk(newExpense.cuentaId)
+        if (!accountExpense) {
             throw boom.notFound('No se pudo crear el gasto')
         }
+        const newSaldo = accountExpense.saldo - newExpense.valor
+        await accountExpense.update({ saldo: newSaldo })
         return newExpense
     }
 
