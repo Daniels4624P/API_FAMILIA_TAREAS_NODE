@@ -58,9 +58,12 @@ class ExpensesService {
                 id
             }
         })
-        if (!expense) {
+        const accountExpense = await models.Accounts.findByPk(expense.cuentaId)
+        if (!accountExpense) {
             throw boom.notFound('No se encontro el gasto')
         }
+        const newSaldo = accountExpense.saldo + expense.valor
+        await accountExpense.update({ saldo: newSaldo })
         await expense.destroy()
         return { message: 'El gasto se elimino correctamente' }
     }
