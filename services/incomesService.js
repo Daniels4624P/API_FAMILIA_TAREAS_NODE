@@ -4,9 +4,12 @@ const { models } = require('../libs/sequelize')
 class IncomesService {
     async createIncome(income) {
         const newIncome = await models.Incomes.create(income)
-        if (!newIncome) {
+        const accountIncome = await models.Accounts.findByPk(newIncome.cuentaId)
+        if (!accountIncome) {
             throw boom.notFound('No se pudo crear el ingreso')
         }
+        const newSaldo = accountIncome.saldo + newIncome.valor
+        await accountIncome.update({ saldo: newSaldo })
         return newIncome
     }
 
@@ -39,9 +42,13 @@ class IncomesService {
                 id
             }
         })
-        if (!income) {
+        const accountIncome = await models.Accounts.findByPk(income.cuentaId)
+        if (!accountIncome) {
             throw boom.notFound('No se encontro el ingreso')
         }
+        const suma = (changes.valor ?? income.valor) - income.valor
+        const newSaldo = accountIncome.saldo + suma
+        await accountIncome.update({ saldo: newSaldo })
         await income.update(changes)
         return income
     }
@@ -53,9 +60,12 @@ class IncomesService {
                 id
             }
         })
-        if (!income) {
+        const accountIncome = await models.Accounts.findByPk(income.cuentaId)
+        if (!accountIncome) {
             throw boom.notFound('No se encontro el ingreso')
         }
+        const newSaldo = accountIncome.saldo - income.valor
+        await accountIncome.update({ saldo: newSaldo })
         await income.destroy()
         return { message: 'La cuenta se elimino correctamente' }
     }
