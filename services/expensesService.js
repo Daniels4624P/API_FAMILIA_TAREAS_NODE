@@ -48,13 +48,9 @@ class ExpensesService {
         if (!accountExpense) {
             throw boom.notFound('No se encontro el gasto')
         }
-        if (expense.valor > changes.valor) {
-            const newSaldo = accountExpense.saldo + expense.valor
-            await accountExpense.update({ saldo: newSaldo })
-        } else {
-            const newSaldo = accountExpense.saldo - expense.valor
-            await accountExpense.update({ saldo: newSaldo })
-        }
+        const diferencia = expense.valor - (changes.valor || expense.valor)
+        const newSaldo = accountExpense.saldo + diferencia
+        await accountExpense.update({ saldo: newSaldo })
         await expense.update(changes)
         return expense
     }
