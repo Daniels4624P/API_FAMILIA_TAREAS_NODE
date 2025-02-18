@@ -18,7 +18,7 @@ class IncomesService {
             where: {
                 userId
             },
-            include: ['account']
+            include: ['account', 'category']
         })
         return incomes
     }
@@ -29,7 +29,7 @@ class IncomesService {
                 userId,
                 id
             },
-            include: ['account']
+            include: ['account', 'category']
         })
         if (!income) {
             throw boom.notFound('No se encontro el ingreso')
