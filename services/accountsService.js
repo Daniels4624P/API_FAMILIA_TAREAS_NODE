@@ -3,7 +3,7 @@ const { models } = require('../libs/sequelize')
 
 class AccountsService {
     async createAccount(account) {
-        const newAccount = await models.Accounts.create(Account)
+        const newAccount = await models.Accounts.create(account)
         if (!newAccount) {
             throw boom.notFound('No se pudo crear la cuenta')
         }
