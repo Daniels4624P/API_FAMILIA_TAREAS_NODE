@@ -2,12 +2,14 @@ const boom = require('@hapi/boom')
 const { models } = require('../libs/sequelize')
 
 class AccountsService {
-    async createAccount(account) {
-        const newAccount = await models.Accounts.create(account)
-        if (!newAccount) {
-            throw boom.notFound('No se pudo crear la cuenta')
+    async createExpense(expense) {
+        const newExpense = await models.Expenses.create(expense)
+        if (!newExpense) {
+            throw boom.notFound('No se pudo crear el gasto')
         }
-        return newAccount
+        const account = await models.Accounts.findOne({ where: { id: expense.cuentaId }})
+        await account.dataValues.saldo - expense.valor
+        return newExpense
     }
 
     async getAccounts(userId) {
