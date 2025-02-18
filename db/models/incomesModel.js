@@ -35,7 +35,7 @@ const incomesSchema = {
         defaultValue: 0
     },
     description: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
     },
     fecha: {
