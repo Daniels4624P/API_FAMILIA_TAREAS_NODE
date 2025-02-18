@@ -17,7 +17,8 @@ class ExpensesService {
         const expenses = await models.Expenses.findAll({
             where: {
                 userId
-            }
+            },
+            include: ['account', 'category']
         })
         return expenses
     }
@@ -27,7 +28,8 @@ class ExpensesService {
             where: {
                 userId,
                 id
-            }
+            },
+            include: ['account', 'category']
         })
         if (!expense) {
             throw boom.notFound('No se encontro el gasto')
