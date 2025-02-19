@@ -66,7 +66,7 @@ app.get('/finances/export',
 
             const response = await axios.get(fastApiUrl, { responseType: "stream" });
 
-            res.setHeader("Content-Disposition", "attachment; filename=finanzas.csv");
+            res.setHeader("Content-Disposition", "attachment; filename=finanzas.xlsx");
             response.data.pipe(res);
         } catch (err) {
             next(err)
