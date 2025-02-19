@@ -63,7 +63,13 @@ app.get("/finances/export",
         try {
             let { year, month, type } = req.query; // 🔹 Agregar filtro de tipo de transacción
             let endpoint = type === "private" ? "/export/private-transactions" : "/export/public-transactions";
+
+            let userId = req.user.sub
+
             const fastApiUrl = `${config.urlFastApi}${endpoint}?year=${year || ""}&month=${month || ""}`;
+            if (type === "private") {
+                fastApiUrl += `&user_id=${userId}`
+            }
 
             console.log(`🔗 Llamando a FastAPI: ${fastApiUrl}`);
 
