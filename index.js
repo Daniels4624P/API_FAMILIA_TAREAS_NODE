@@ -66,7 +66,7 @@ app.get("/finances/export",
 
             let userId = req.user.sub
 
-            const fastApiUrl = `${config.urlFastApi}${endpoint}?year=${year || ""}&month=${month || ""}`;
+            let fastApiUrl = `${config.urlFastApi}${endpoint}?year=${year || ""}&month=${month || ""}`;
             if (type === "private") {
                 fastApiUrl += `&user_id=${userId}`
             }
