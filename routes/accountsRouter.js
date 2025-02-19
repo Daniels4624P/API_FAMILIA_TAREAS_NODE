@@ -78,4 +78,17 @@ router.delete('/:id',
     }
 )
 
+router.get('/statistics',
+    passport.authenticate('jwt', { session: false }),
+    async (req, res, next) => {
+        try {
+            const user = req.user
+            const stats = await service.getAccountStatistics(user.sub)
+            res.json(stats)
+        } catch (err) {
+            next(err)
+        }
+    }
+)
+
 module.exports = router
