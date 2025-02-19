@@ -4,44 +4,42 @@ const sequelize = require('./../libs/sequelize')
 const { Op } = require('sequelize')
 
 class ExpensesService {
-    async createExpense(expense) {
+    async function createExpense(expense) {
         return await sequelize.transaction(async (t) => {
-            // Crear el gasto
+            // 1️⃣ Crear el gasto
             const newExpense = await models.Expenses.create(expense, { transaction: t });
     
-            // Buscar la cuenta de origen
+            // 2️⃣ Restar saldo de la cuenta origen
             const accountExpense = await models.Accounts.findByPk(newExpense.cuentaId, { transaction: t });
             if (!accountExpense) {
                 throw boom.notFound('Cuenta origen no encontrada');
             }
     
-            if (newExpense.public) {
-                // Buscar la cuenta destino
-                const accountDestinoExpense = await models.Accounts.findByPk(newExpense.destinoId, { transaction: t });
-                if (!accountDestinoExpense) {
+            await accountExpense.update(
+                { saldo: accountExpense.saldo - newExpense.valor },
+                { transaction: t }
+            );
+            console.log(`✅ Se restó ${newExpense.valor} de la cuenta origen`);
+    
+            // 3️⃣ Sumar saldo a la cuenta destino (si existe)
+            if (newExpense.destinoId) {
+                const accountDestino = await models.Accounts.findByPk(newExpense.destinoId, { transaction: t });
+                if (!accountDestino) {
                     throw boom.notFound('Cuenta destino no encontrada');
                 }
     
-                // Calcular nuevos saldos
-                const newSaldo = accountExpense.saldo - newExpense.valor;
-                const newSaldoDestino = accountDestinoExpense.saldo + newExpense.valor;
-    
-                // Actualizar ambas cuentas
-                await accountExpense.update({ saldo: newSaldo }, { transaction: t });
-                await accountDestinoExpense.update({ saldo: newSaldoDestino }, { transaction: t });
-    
-                console.log(`✅ Se restó ${newExpense.valor} de la cuenta origen y se sumó a la cuenta destino`);
-            } else {
-                // Si no es pública, solo actualizar la cuenta de origen
-                const newSaldo = accountExpense.saldo - newExpense.valor;
-                await accountExpense.update({ saldo: newSaldo }, { transaction: t });
-    
-                console.log(`✅ Se restó ${newExpense.valor} de la cuenta origen`);
+                await accountDestino.update(
+                    { saldo: accountDestino.saldo + newExpense.valor },
+                    { transaction: t }
+                );
+                console.log(`✅ Se sumó ${newExpense.valor} a la cuenta destino`);
             }
     
+            // 4️⃣ Retornar la transacción completa
             return newExpense;
         });
     }
+
     
 
     async getExpenses(userId) {
