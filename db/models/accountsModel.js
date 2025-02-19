@@ -36,6 +36,11 @@ const accountsSchema = {
         allowNull: false,
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
+    },
+    public: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }
 
