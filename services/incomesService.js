@@ -36,14 +36,25 @@ class IncomesService {
 
     async getIncomes(userId) {
         return await models.Incomes.findAll({
-            where: { userId },
+            where: {
+                [Op.or]: [
+                    { userId },
+                    { '$accountInicio.public$': true }
+                ]
+            },
             include: ['accountInicio', 'category', 'accountDestino']
         });
     }
 
     async getIncome(userId, id) {
         const income = await models.Incomes.findOne({
-            where: { userId, id },
+            where: {
+                id,
+                [Op.or]: [
+                    { userId },
+                    { '$accountInicio.public$': true }
+                ]
+            },
             include: ['accountInicio', 'category', 'accountDestino']
         });
         if (!income) throw boom.notFound('No se encontró el ingreso');
