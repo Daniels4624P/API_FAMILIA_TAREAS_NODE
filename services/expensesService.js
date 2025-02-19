@@ -1,5 +1,6 @@
 const boom = require('@hapi/boom')
-const { models, sequelize } = require('./../libs/sequelize')
+const { models } = require('./../libs/sequelize')
+const sequelize = require('./../libs/sequelize')
 const { Op } = require('sequelize')
 
 class ExpensesService {
