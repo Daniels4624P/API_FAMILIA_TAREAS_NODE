@@ -68,7 +68,7 @@ class AccountsService {
 
         let stats = []
 
-        for (const account of account) {
+        for (const account of accounts) {
             const totalExpenses = await models.Expenses.sum('valor', { where: { cuentaId: account.id } }) || 0
             const totalIncomes = await models.Incomes.sum('valor', { where: { cuentaId: account.id } }) || 0
 
