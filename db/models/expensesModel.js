@@ -68,7 +68,8 @@ const expensesSchema = {
 class Expenses extends Model {
     static associate(models) {
         this.belongsTo(models.User, { as: 'user', foreignKey: 'userId' })
-        this.belongsTo(models.Accounts, { as: 'account', foreignKey: 'cuentaId' })
+        this.belongsTo(models.Accounts, { as: 'accountInicio', foreignKey: 'cuentaId' })
+        this.belongsTo(models.Accounts, { as: 'accountDestino', foreignKey: 'destinoId' })
         this.belongsTo(models.Categories, { as: 'category', foreignKey: 'categoriaId' })
     }
 
