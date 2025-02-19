@@ -57,21 +57,27 @@ app.post('/rellenar', async (req, res, next) => {
     }
 })
 
-app.get('/finances/export', 
-    passport.authenticate('jwt', { session: false }),
+router.get("/finances/export",
+    passport.authenticate("jwt", { session: false }),
     async (req, res, next) => {
         try {
-            let { year, month } = req.query
-            const fastApiUrl = `${config.urlFastApi}/export/finances?year=${year || ""}&month=${month || ""}`
+            let { year, month, type } = req.query; // 🔹 Agregar filtro de tipo de transacción
+            let endpoint = type === "private" ? "/export/private-transactions" : "/export/public-transactions";
+            const fastApiUrl = `${config.urlFastApi}${endpoint}?year=${year || ""}&month=${month || ""}`;
 
+            console.log(`🔗 Llamando a FastAPI: ${fastApiUrl}`);
+
+            // Hacer la petición a FastAPI
             const response = await axios.get(fastApiUrl, { responseType: "stream" });
 
-            res.setHeader("Content-Disposition", "attachment; filename=finanzas.csv");
-            response.data.pipe(res);
+            res.setHeader("Content-Disposition", `attachment; filename=finanzas_${type || "public"}.csv`);
+            response.data.pipe(res); // 🔹 Pasar el stream de FastAPI al cliente
+
         } catch (err) {
-            next(err)
+            console.error("❌ Error descargando CSV:", err.message);
+            next(err);
         }
     }
-)
+);
 
 app.listen(config.port, () => console.log(`La API esta corriendo en el puerto ${config.port}`))
