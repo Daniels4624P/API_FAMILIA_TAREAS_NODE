@@ -57,7 +57,7 @@ app.post('/rellenar', async (req, res, next) => {
     }
 })
 
-router.get("/finances/export",
+app.get("/finances/export",
     passport.authenticate("jwt", { session: false }),
     async (req, res, next) => {
         try {
