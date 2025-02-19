@@ -4,7 +4,7 @@ const sequelize = require('./../libs/sequelize')
 const { Op } = require('sequelize')
 
 class ExpensesService {
-    async function createExpense(expense) {
+    async createExpense(expense) {
         return await sequelize.transaction(async (t) => {
             // 1️⃣ Crear el gasto
             const newExpense = await models.Expenses.create(expense, { transaction: t });
