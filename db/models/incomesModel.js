@@ -52,13 +52,24 @@ const incomesSchema = {
         allowNull: false,
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
+    },
+    destinoId: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
+        field: 'destino_id',
+        references: {
+            model: 'Accounts',
+            key: 'id'
+        },
+        onDelete: 'SET NULL'
     }
 }
 
 class Incomes extends Model {
     static associate(models) {
         this.belongsTo(models.User, { as: 'user', foreignKey: 'userId' })
-        this.belongsTo(models.Accounts, { as: 'account', foreignKey: 'cuentaId' })
+        this.belongsTo(models.Accounts, { as: 'accountInicio', foreignKey: 'cuentaId' })
+        this.belongsTo(models.Accounts, { as: 'accountDestino', foreignKey: 'destinoId' })
         this.belongsTo(models.Categories, { as: 'category', foreignKey: 'categoriaId' })
     }
 
