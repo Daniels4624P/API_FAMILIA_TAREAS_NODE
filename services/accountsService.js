@@ -1,5 +1,6 @@
 const boom = require('@hapi/boom')
 const { models } = require('../libs/sequelize')
+const { Op } = require('sequelize')
 
 class AccountsService {
     async createAccount(account) {
@@ -13,7 +14,10 @@ class AccountsService {
     async getAccounts(userId) {
         const accounts = await models.Accounts.findAll({
             where: {
-                userId
+                [Op.or]: [
+                    { userId },
+                    { public: true }
+                ]
             }
         })
         return accounts
@@ -22,8 +26,11 @@ class AccountsService {
     async getAccount(userId, id) {
         const account = await models.Accounts.findOne({
             where: {
-                userId,
-                id
+                id,
+                [Op.or]: [
+                    { userId },
+                    { public: true }
+                ]
             }
         })
         if (!account) {
@@ -35,8 +42,11 @@ class AccountsService {
     async updateAccount(userId, id, changes) {
         const account = await models.Accounts.findOne({
             where: {
-                userId,
-                id
+                id,
+                [Op.or]: [
+                    { userId },
+                    { public: true }
+                ]
             }
         })
         if (!account) {
@@ -49,8 +59,11 @@ class AccountsService {
     async deleteAccount(userId, id) {
         const account = await models.Accounts.findOne({
             where: {
-                userId,
-                id
+                id,
+                [Op.or]: [
+                    { userId },
+                    { public: true }
+                ]
             }
         })
         if (!account) {
@@ -61,10 +74,10 @@ class AccountsService {
     }
 
     async getAccountStatistics(userId) {
-        userId = parseInt(userId, 10)
+        console.log(userId)
 
         const accounts = await models.Accounts.findAll({
-            where: { userId },
+            where: { userId, public: true },
             attributes: ['id', 'name']
         })
 
