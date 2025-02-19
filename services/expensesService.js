@@ -1,24 +1,52 @@
 const boom = require('@hapi/boom')
-const { models } = require('./../libs/sequelize')
+const { models, sequelize } = require('./../libs/sequelize')
+const { Op } = require('sequelize')
 
 class ExpensesService {
     async createExpense(expense) {
-        const newExpense = await models.Expenses.create(expense)
-        const accountExpense = await models.Accounts.findByPk(newExpense.cuentaId)
-        if (!accountExpense) {
-            throw boom.notFound('No se pudo crear el gasto')
-        }
-        const newSaldo = accountExpense.saldo - newExpense.valor
-        await accountExpense.update({ saldo: newSaldo })
-        return newExpense
+        return await sequelize.transaction(async (t) => {
+            const newExpense = await models.Expenses.create(expense, { transaction: t });
+    
+            const accountExpense = await models.Accounts.findByPk(newExpense.cuentaId, { transaction: t });
+            if (!accountExpense) {
+                throw boom.notFound('Cuenta origen no encontrada');
+            }
+    
+            if (newExpense.public) {
+                const accountDestinoExpense = await models.Accounts.findByPk(newExpense.destinoId, { transaction: t });
+                if (!accountDestinoExpense) {
+                    throw boom.notFound('Cuenta destino no encontrada');
+                }
+    
+                await accountExpense.update(
+                    { saldo: accountExpense.saldo - newExpense.valor },
+                    { transaction: t }
+                );
+                await accountDestinoExpense.update(
+                    { saldo: accountDestinoExpense.saldo + newExpense.valor },
+                    { transaction: t }
+                );
+            } else {
+                await accountExpense.update(
+                    { saldo: accountExpense.saldo - newExpense.valor },
+                    { transaction: t }
+                );
+            }
+    
+            return newExpense;
+        });
     }
+    
 
     async getExpenses(userId) {
         const expenses = await models.Expenses.findAll({
             where: {
-                userId
+                [Op.or]: [
+                    { userId },
+                    { '$accountInicio.public$': true }
+                ]
             },
-            include: ['account', 'category']
+            include: ['accountInicio', 'category', 'accountDestino']
         })
         return expenses
     }
@@ -26,10 +54,13 @@ class ExpensesService {
     async getExpense(userId, id) {
         const expense = await models.Expenses.findOne({
             where: {
-                userId,
-                id
+                id,
+                [Op.or]: [
+                    { userId },
+                    { '$accountInicio.public$': true }
+                ]
             },
-            include: ['account', 'category']
+            include: ['accountInicio', 'category', 'accountDestino']
         })
         if (!expense) {
             throw boom.notFound('No se encontro el gasto')
@@ -38,39 +69,60 @@ class ExpensesService {
     }
 
     async updateExpense(userId, id, changes) {
-        const expense = await models.Expenses.findOne({
-            where: {
-                userId,
-                id
+        return await sequelize.transaction(async (t) => {
+            const expense = await models.Expenses.findOne({
+                where: { userId, id },
+                transaction: t
+            });
+    
+            if (!expense) {
+                throw boom.notFound('No se encontró el gasto');
             }
-        })
-        const accountExpense = await models.Accounts.findByPk(expense.cuentaId)
-        if (!accountExpense) {
-            throw boom.notFound('No se encontro el gasto')
-        }
-        const diferencia = expense.valor - (changes.valor || expense.valor)
-        const newSaldo = accountExpense.saldo + diferencia
-        await accountExpense.update({ saldo: newSaldo })
-        await expense.update(changes)
-        return expense
+    
+            const accountExpense = await models.Accounts.findByPk(expense.cuentaId, { transaction: t });
+            if (!accountExpense) {
+                throw boom.notFound('No se encontró la cuenta asociada al gasto');
+            }
+    
+            const diferencia = expense.valor - (changes.valor ?? expense.valor);
+            await accountExpense.update(
+                { saldo: accountExpense.saldo + diferencia },
+                { transaction: t }
+            );
+    
+            await expense.update(changes, { transaction: t });
+    
+            return expense;
+        });
     }
-
+    
     async deleteExpense(userId, id) {
-        const expense = await models.Expenses.findOne({
-            where: {
-                userId,
-                id
+        return await sequelize.transaction(async (t) => {
+            const expense = await models.Expenses.findOne({
+                where: { userId, id },
+                transaction: t
+            });
+    
+            if (!expense) {
+                throw boom.notFound('No se encontró el gasto');
             }
-        })
-        const accountExpense = await models.Accounts.findByPk(expense.cuentaId)
-        if (!accountExpense) {
-            throw boom.notFound('No se encontro el gasto')
-        }
-        const newSaldo = accountExpense.saldo + expense.valor
-        await accountExpense.update({ saldo: newSaldo })
-        await expense.destroy()
-        return { message: 'El gasto se elimino correctamente' }
+    
+            const accountExpense = await models.Accounts.findByPk(expense.cuentaId, { transaction: t });
+            if (!accountExpense) {
+                throw boom.notFound('No se encontró la cuenta asociada al gasto');
+            }
+    
+            await accountExpense.update(
+                { saldo: accountExpense.saldo + expense.valor },
+                { transaction: t }
+            );
+    
+            await expense.destroy({ transaction: t });
+    
+            return { message: 'El gasto se eliminó correctamente' };
+        });
     }
+    
 }
 
 module.exports = ExpensesService
