@@ -61,6 +61,8 @@ class AccountsService {
     }
 
     async getAccountStatistics(userId) {
+        userId = parseInt(userId, 10)
+
         const accounts = await models.Accounts.findAll({
             where: { userId },
             attributes: ['id', 'name']
