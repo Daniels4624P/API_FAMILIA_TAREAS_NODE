@@ -59,6 +59,29 @@ class AccountsService {
         await account.destroy()
         return { message: 'La cuenta se elimino correctamente' }
     }
+
+    async getAccountStatistics(userId) {
+        const accounts = await models.Accounts.findAll({
+            where: { userId },
+            attributes: ['id', 'name']
+        })
+
+        let stats = []
+
+        for (const account of account) {
+            const totalExpenses = await models.Expenses.sum('valor', { where: { cuentaId: account.id } }) || 0
+            const totalIncomes = await models.Incomes.sum('valor', { where: { cuentaId: account.id } }) || 0
+
+            stats.push({
+                cuentaId: account.id,
+                cuentaNombre: account.name,
+                totalExpenses,
+                totalIncomes
+            })
+        }
+
+        return stats
+    }
 }
 
 module.exports = AccountsService
