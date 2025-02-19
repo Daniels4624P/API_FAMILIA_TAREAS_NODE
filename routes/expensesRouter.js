@@ -56,7 +56,7 @@ router.patch('/:id',
             const { id } = req.params
             const user = req.user
             const changes = req.body
-            const expense = await service.updateExpense(user.sub, id, changes)
+            const expense = await service.updateExpense(id, changes)
             res.json(expense)
         } catch (err) {
             next(err)
@@ -70,7 +70,7 @@ router.delete('/:id',
         try {
             const { id } = req.params
             const user = req.user
-            const expense = await service.deleteExpense(user.sub, id)
+            const expense = await service.deleteExpense(id)
             res.json(expense)
         } catch (err) {
             next(err)
