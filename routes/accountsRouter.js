@@ -78,7 +78,7 @@ router.delete('/:id',
     }
 )
 
-router.get('/statistics',
+router.get('/statistics/of/user',
     passport.authenticate('jwt', { session: false }),
     async (req, res, next) => {
         try {
