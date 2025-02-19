@@ -52,6 +52,16 @@ const expensesSchema = {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         allowNull: false
+    },
+    destinoId: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
+        field: 'destino_id',
+        references: {
+            model: 'Accounts',
+            key: 'id'
+        },
+        onDelete: 'SET NULL'
     }
 }
 
