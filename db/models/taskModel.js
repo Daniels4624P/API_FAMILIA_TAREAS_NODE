@@ -32,6 +32,10 @@ const taskSchema = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
+    },
+    date: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }
 
