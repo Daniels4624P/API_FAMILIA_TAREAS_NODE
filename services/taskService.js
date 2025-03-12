@@ -96,6 +96,9 @@ class TaskService {
     }
 
     async completeTaskPublic(id, userId, numberRepeat) {
+        if (!numberRepeat) {
+            numberRepeat = 1
+        }
         const task = await models.Task.findOne({
             where: { id },
             include: {
