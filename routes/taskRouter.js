@@ -54,7 +54,8 @@ router.patch('/:id/complete/task/public',
         try {
             const userId = req.user.sub
             const { id } = req.params
-            const response = await service.completeTaskPublic(id, userId)
+            const numberRepeat = req.body.numberRepeat
+            const response = await service.completeTaskPublic(id, userId, numberRepeat)
             res.json(response)
         } catch (err) {
             next(err)
