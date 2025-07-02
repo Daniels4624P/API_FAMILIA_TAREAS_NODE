@@ -7,7 +7,7 @@ const verifyRoles = (...roles) => (req, res, next) => {
     if (roles.includes(user.role)) {
         next()
     } else {
-        next(boom.unauthorized('El usuario no puede usar esta funcion'))
+        return next(boom.unauthorized('El usuario no puede usar esta funcion'))
     }
 }
 
@@ -15,7 +15,7 @@ const verifyToken = (req, res, next) => {
     const accessToken = req.cookies.accessToken
     
     if (!accessToken) {
-        next(boom.unauthorized('El usuario no esta autenticado'))
+        return next(boom.unauthorized('El usuario no esta autenticado'))
     }
 
     try {
@@ -23,7 +23,7 @@ const verifyToken = (req, res, next) => {
         req.user = payload
         next()
     } catch (err) {
-        next(boom.notFound(err.message))
+        return next(boom.notFound(err.message))
     }
 }
 
