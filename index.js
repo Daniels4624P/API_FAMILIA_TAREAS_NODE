@@ -13,7 +13,9 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors())
+app.use(cors({
+    origin: 'https://proyecto-familia-tareas-frontend.onrender.com'
+}))
 app.use(helmet())
 
 routerApi(app)
