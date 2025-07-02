@@ -12,6 +12,7 @@ const verifyRoles = (...roles) => (req, res, next) => {
 }
 
 const verifyToken = (req, res, next) => {
+    console.log(req.cookies)
     const accessToken = req.cookies.accessToken
     
     if (!accessToken) {
