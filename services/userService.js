@@ -1,7 +1,7 @@
 const boom = require('@hapi/boom')
 const { models } = require('./../libs/sequelize')
 const bcrypt = require('bcrypt')
-const { Op } = require('sequelize')
+const { Op, DATE } = require('sequelize')
 
 class UserService {
     async getUserForId(userId) {
@@ -98,7 +98,36 @@ class UserService {
             points: user.points
         }))
         return usersFormat
-    } 
+    }
+
+    async update(userId, changes) {
+        const user = await models.User.findByPk(userId)
+        if (!user) {
+            throw boom.forbidden()
+        }
+        await user.update(changes)
+    }
+
+    async getUserForRefreshToken(refreshToken) {
+        const user = await models.User.findOne({ where: { refresh_token: refreshToken }})
+        if (!user) {
+            throw boom.forbidden()
+        }
+        return user
+    }
+
+    async getUserForRecoveryToken(recoveryToken) {
+        const user = await models.User.findOne({ where: { 
+            recovery_token: recoveryToken, 
+            recovery_token_expire: {
+                [Op.lte]: [Date.now()]
+            }
+        }})
+        if (!user) {
+            throw boom.forbidden()
+        }
+        return user
+    }
 }
 
 module.exports = UserService

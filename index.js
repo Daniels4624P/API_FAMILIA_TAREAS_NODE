@@ -1,15 +1,20 @@
 const express = require('express')
-const app = express()
 const cors = require('cors')
 const config = require('./config/config')
 const { ormErrorHandler, boomErrorHandler, errorHandler } = require('./middlewares/errorHandler')
 const { models } = require('./libs/sequelize')
 const routerApi = require('./routes/index')
+const axios = require('axios')
+const helmet = require('helmet')
+const cookieParser = require('cookie-parser')
+const { verifyToken } = require('./middlewares/authHandler')
+
+const app = express()
 
 app.use(express.json())
+app.use(cookieParser())
 app.use(cors())
-
-require('./utils/auth/index')
+app.use(helmet())
 
 routerApi(app)
 
@@ -48,11 +53,38 @@ app.post('/rellenar', async (req, res, next) => {
             {task: "Lavar losa (Noche)", points: 10, folderId: 1},
             {task: "Lavar losa (Dia)", points: 10, folderId: 1},
         ]
-        const response = await models.Task.bulkCreate(tasks)
+        await models.Task.bulkCreate(tasks)
         res.status(201).json('Se rellenaron las tareas de la casa correctamente')
     } catch (err) {
         next(err)
     }
 })
+
+app.get("/finances/export", verifyToken, async (req, res, next) => {
+        try {
+            let { year, month, type } = req.query; // 🔹 Agregar filtro de tipo de transacción
+            let endpoint = type === "private" ? "/export/private-transactions" : "/export/public-transactions";
+
+            let userId = req.user.sub
+
+            let fastApiUrl = `${config.urlFastApi}${endpoint}?year=${year || ""}&month=${month || ""}`;
+            if (type === "private") {
+                fastApiUrl += `&user_id=${userId}`
+            }
+
+            console.log(`🔗 Llamando a FastAPI: ${fastApiUrl}`);
+
+            // Hacer la petición a FastAPI
+            const response = await axios.get(fastApiUrl, { responseType: "stream" });
+
+            res.setHeader("Content-Disposition", `attachment; filename=finanzas_${type || "public"}.csv`);
+            response.data.pipe(res); // 🔹 Pasar el stream de FastAPI al cliente
+
+        } catch (err) {
+            console.error("❌ Error descargando CSV:", err.message);
+            next(err);
+        }
+    }
+);
 
 app.listen(config.port, () => console.log(`La API esta corriendo en el puerto ${config.port}`))

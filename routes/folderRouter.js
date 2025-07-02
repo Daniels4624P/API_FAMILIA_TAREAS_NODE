@@ -1,13 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const passport = require('passport')
-const checkRoles = require('./../middlewares/authHandler')
+const { verifyToken, verifyRoles } = require('../middlewares/authHandler')
 const FolderService = require('./../services/folderService')
 const service = new FolderService()
 
-router.post('/', 
-    passport.authenticate('jwt', { session: false }),
-    async (req, res, next) => {
+router.post('/', verifyToken, async (req, res, next) => {
         try {
             const data = req.body
             const userId = req.user.sub
@@ -23,9 +20,7 @@ router.post('/',
     }
 )
 
-router.get('/public', 
-    passport.authenticate('jwt', { session: false }),
-    async (req, res, next) => {
+router.get('/public', verifyToken, async (req, res, next) => {
         try {
             const folders = await service.findPublicFolders()
             res.json(folders)
@@ -35,9 +30,7 @@ router.get('/public',
     }
 )
 
-router.get('/private', 
-    passport.authenticate('jwt', { session: false }),
-    async (req, res, next) => {
+router.get('/private', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const folders = await service.findPrivateFolders(userId)
@@ -48,10 +41,7 @@ router.get('/private',
     }
 )
 
-router.get('/:id', 
-    passport.authenticate('jwt', { session: false }),
-    checkRoles('admin'),
-    async (req, res, next) => {
+router.get('/:id', verifyToken, verifyRoles('admin'), async (req, res, next) => {
         try {
             const { id } = req.params
             const folder = await service.findOneFolder(id)
@@ -62,9 +52,7 @@ router.get('/:id',
     }
 )
 
-router.patch('/:id', 
-    passport.authenticate('jwt', { session: false }),
-    async (req, res, next) => {
+router.patch('/:id', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const changes = req.body
@@ -77,9 +65,7 @@ router.patch('/:id',
     }
 )
 
-router.delete('/:id', 
-    passport.authenticate('jwt', { session: false }),
-    async (req, res, next) => {
+router.delete('/:id', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { id } = req.params
@@ -91,9 +77,7 @@ router.delete('/:id',
     }
 )
 
-router.get('/:folderId/tasks',
-    passport.authenticate('jwt', { session: false }),
-    async (req, res, next) => {
+router.get('/:folderId/tasks', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { folderId } = req.params

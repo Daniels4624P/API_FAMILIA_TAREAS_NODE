@@ -1,4 +1,6 @@
 const boom = require('@hapi/boom')
+const jwt = require('jsonwebtoken')
+const config = require('../config/config')
 
 const verifyRoles = (...roles) => (req, res, next) => {
     const user = req.user
@@ -9,4 +11,23 @@ const verifyRoles = (...roles) => (req, res, next) => {
     }
 }
 
-module.exports = verifyRoles
+const verifyToken = (req, res, next) => {
+    const accessToken = req.cookies.accessToken
+    
+    if (!accessToken) {
+        next(boom.unauthorized('El usuario no esta autenticado'))
+    }
+
+    try {
+        const payload = jwt.verify(accessToken, config.jwtSecretAccess)
+        req.user = payload
+        next()
+    } catch (err) {
+        next(boom.notFound(err.message))
+    }
+}
+
+module.exports = {
+    verifyRoles,
+    verifyToken
+}

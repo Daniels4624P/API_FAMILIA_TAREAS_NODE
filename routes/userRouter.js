@@ -1,13 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const passport = require('passport')
-const checkRoles = require('./../middlewares/authHandler')
+const { verifyToken, verifyRoles } = require('../middlewares/authHandler')
 const UserService = require('./../services/userService')
 const service = new UserService()
 
-router.get('/points', 
-    passport.authenticate('jwt', { session: false }),
-    async (req, res, next) => {
+router.get('/points', verifyToken, async (req, res, next) => {
         try {
             const users = await service.getScoreUsers()
             res.json(users)
@@ -17,10 +14,7 @@ router.get('/points',
     }
 )
 
-router.get('/:id/points', 
-    passport.authenticate('jwt', { session: false }),
-    checkRoles('admin'),
-    async (req, res, next) => {
+router.get('/:id/points', verifyToken, verifyRoles('admin'), async (req, res, next) => {
         try {
             const { id } = req.params
             const user = await service.getUserForId(id)
@@ -31,9 +25,7 @@ router.get('/:id/points',
     }
 )
 
-router.get('/history',
-    passport.authenticate('jwt', { session: false }),
-    async (req, res, next) => {
+router.get('/history', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const historial = await service.getUserHistory(userId)

@@ -96,7 +96,10 @@ class TaskService {
             return task
     }
 
-    async completeTaskPublic(id, userId) {
+    async completeTaskPublic(id, userId, numberRepeat) {
+        if (!numberRepeat) {
+            numberRepeat = 1
+        }
         const task = await models.Task.findOne({
             where: { id },
             include: {
@@ -130,16 +133,18 @@ class TaskService {
         }
     
         // Registrar la finalización de la tarea en la tabla intermedia
-        await models.UserTaskCompletion.create({
-            taskId: id,
-            userId
-        });
-        const user = await models.User.findByPk(userId)
-        await user.update({ points: user.points + task.points })
-        await models.HystoryTask.create({
-            taskId: task.dataValues.id,
-            ownerId: userId
-        })
+        for (let i = 0; i < numberRepeat; i++) {
+            await models.UserTaskCompletion.create({
+                taskId: id,
+                userId
+            });
+            const user = await models.User.findByPk(userId)
+            await user.update({ points: user.points + task.points })
+            await models.HystoryTask.create({
+                taskId: task.dataValues.id,
+                ownerId: userId
+            })
+        }
         return task
     }
 

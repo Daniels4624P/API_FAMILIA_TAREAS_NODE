@@ -4,6 +4,10 @@ const { Folder, folderSchema } = require('./folderModel')
 const { Task, taskSchema } = require('./taskModel')
 const { HystoryTask, hystoryTaskSchema } = require('./hystoryTasksModel')
 const { UserTaskCompletion, userTaskCompletionSchema } = require('./UserTaskCompletionModel')
+const { Accounts, accountsSchema } = require('./accountsModel')
+const { Categories, categoriesSchema } = require('./categoriesModel')
+const { Expenses, expensesSchema } = require('./expensesModel')
+const { Incomes, incomesSchema } = require('./incomesModel')
 
 const setupModels = (sequelize) => {
     User.init(userSchema, User.config(sequelize))
@@ -12,6 +16,10 @@ const setupModels = (sequelize) => {
     Task.init(taskSchema, Task.config(sequelize))
     HystoryTask.init(hystoryTaskSchema, HystoryTask.config(sequelize))
     UserTaskCompletion.init(userTaskCompletionSchema, UserTaskCompletion.config(sequelize))
+    Accounts.init(accountsSchema, Accounts.config(sequelize))
+    Categories.init(categoriesSchema, Categories.config(sequelize))
+    Expenses.init(expensesSchema, Expenses.config(sequelize))
+    Incomes.init(incomesSchema, Incomes.config(sequelize))
 
     User.associate(sequelize.models)
     Folder.associate(sequelize.models)
@@ -19,6 +27,10 @@ const setupModels = (sequelize) => {
     Task.associate(sequelize.models)
     HystoryTask.associate(sequelize.models)
     UserTaskCompletion.associate(sequelize.models)
+    Accounts.associate(sequelize.models)
+    Categories.associate(sequelize.models)
+    Expenses.associate(sequelize.models)
+    Incomes.associate(sequelize.models)
 }
 
 module.exports = setupModels

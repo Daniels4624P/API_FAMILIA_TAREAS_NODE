@@ -8,7 +8,11 @@ const config = {
     dbPassword: process.env.DB_PASSWORD,
     dbName: process.env.DB_NAME,
     dbHost: process.env.DB_HOST,
-    jwtSecret: process.env.JWT_SECRET
+    jwtSecretAccess: process.env.JWT_SECRET_ACCESS,
+    jwtSecretRefresh: process.env.JWT_SECRET_REFRESH,
+    emailApi: process.env.SMTP_EMAIL,
+    passEmail: process.env.SMTP_PASS,
+    urlFastApi: process.env.URL_FASTAPI
 }
 
 module.exports = config

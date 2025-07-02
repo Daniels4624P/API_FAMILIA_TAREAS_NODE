@@ -1,13 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const passport = require('passport')
-const checkRoles = require('./../middlewares/authHandler')
+const { verifyToken } = require('../middlewares/authHandler')
 const TaskService = require('./../services/taskService')
 const service = new TaskService()
 
-router.post('/',
-    passport.authenticate('jwt',  { session: false }),
-    async (req, res, next) => {
+router.post('/', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const task = req.body
@@ -19,9 +16,7 @@ router.post('/',
     }
 )
 
-router.patch('/:id',
-    passport.authenticate('jwt',  { session: false }),
-    async (req, res, next) => {
+router.patch('/:id', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { id } = req.params
@@ -34,9 +29,7 @@ router.patch('/:id',
     }
 )
 
-router.delete('/:id',
-    passport.authenticate('jwt',  { session: false }),
-    async (req, res, next) => {
+router.delete('/:id', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { id } = req.params
@@ -48,13 +41,12 @@ router.delete('/:id',
     }
 )
 
-router.patch('/:id/complete/task/public',
-    passport.authenticate('jwt',  { session: false }),
-    async (req, res, next) => {
+router.patch('/:id/complete/task/public', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { id } = req.params
-            const response = await service.completeTaskPublic(id, userId)
+            const numberRepeat = req.body.numberRepeat
+            const response = await service.completeTaskPublic(id, userId, numberRepeat)
             res.json(response)
         } catch (err) {
             next(err)
@@ -62,9 +54,7 @@ router.patch('/:id/complete/task/public',
     }
 )
 
-router.patch('/:id/complete/task/private',
-    passport.authenticate('jwt',  { session: false }),
-    async (req, res, next) => {
+router.patch('/:id/complete/task/private', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { id } = req.params
@@ -76,9 +66,7 @@ router.patch('/:id/complete/task/private',
     }
 )
 
-router.patch('/descompleted/tasks',
-    passport.authenticate('jwt',  { session: false }),
-    async (req, res, next) => {
+router.patch('/descompleted/tasks', verifyToken, async (req, res, next) => {
         try {
             const response = await service.descompletedTasks()
             res.json(response)
@@ -88,9 +76,7 @@ router.patch('/descompleted/tasks',
     }
 )
 
-router.get('/tasks/monthly',
-    passport.authenticate('jwt',  { session: false }),
-    async (req, res, next) => {
+router.get('/tasks/monthly', verifyToken, async (req, res, next) => {
         try {
             const query = req.query
             const user = req.user.sub
