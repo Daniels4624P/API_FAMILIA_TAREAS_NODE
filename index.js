@@ -14,7 +14,7 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin: 'https://proyecto-familia-tareas-frontend.onrender.com/', // Tu frontend
+  origin: 'https://proyecto-familia-tareas-frontend.onrender.com', // Tu frontend
   credentials: true, // Permitir cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
