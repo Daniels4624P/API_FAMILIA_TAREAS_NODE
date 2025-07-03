@@ -5,6 +5,7 @@ const { Op } = require('sequelize')
 
 class ExpensesService {
     async createExpense(expense) {
+        expense.valor = Number(expense.valor)
         return await sequelize.transaction(async (t) => {
             // 1️⃣ Crear el gasto
             const newExpense = await models.Expenses.create(expense, { transaction: t });
@@ -16,10 +17,9 @@ class ExpensesService {
             }
     
             await accountExpense.update(
-                { saldo: accountExpense.saldo - newExpense.valor },
+                { saldo: Number(accountExpense.saldo) - Number(newExpense.valor) },
                 { transaction: t }
             );
-            console.log(`✅ Se restó ${newExpense.valor} de la cuenta origen`);
     
             // 3️⃣ Sumar saldo a la cuenta destino (si existe)
             if (newExpense.destinoId) {
@@ -29,10 +29,9 @@ class ExpensesService {
                 }
     
                 await accountDestino.update(
-                    { saldo: accountDestino.saldo + newExpense.valor },
+                    { saldo: Number(accountDestino.saldo) + Number(newExpense.valor) },
                     { transaction: t }
                 );
-                console.log(`✅ Se sumó ${newExpense.valor} a la cuenta destino`);
             }
     
             // 4️⃣ Retornar la transacción completa
@@ -73,66 +72,65 @@ class ExpensesService {
     }
 
     async updateExpense(expenseId, newExpenseData) {
+        // Asegurar que el valor sea número
+        newExpenseData.valor = Number(newExpenseData.valor);
+        if (isNaN(newExpenseData.valor)) {
+            throw boom.badRequest('El valor debe ser un número válido');
+        }
+
         return await sequelize.transaction(async (t) => {
-            // 1️⃣ Buscar el gasto actual
             const expense = await models.Expenses.findByPk(expenseId, { transaction: t });
             if (!expense) {
                 throw boom.notFound('Gasto no encontrado');
             }
-    
-            // 2️⃣ Revertir saldo de la cuenta origen
-            const accountExpense = await models.Accounts.findByPk(expense.cuentaId, { transaction: t });
-            if (accountExpense) {
-                await accountExpense.update(
-                    { saldo: accountExpense.saldo + expense.valor },
+
+            // Revertir saldos antiguos
+            const oldAccount = await models.Accounts.findByPk(expense.cuentaId, { transaction: t });
+            if (oldAccount) {
+                await oldAccount.update(
+                    { saldo: Number(oldAccount.saldo) + Number(expense.valor) },
                     { transaction: t }
                 );
-                console.log(`🔄 Se devolvió ${expense.valor} a la cuenta origen`);
             }
-    
-            // 3️⃣ Revertir saldo de la cuenta destino
+
             if (expense.destinoId) {
-                const accountDestino = await models.Accounts.findByPk(expense.destinoId, { transaction: t });
-                if (accountDestino) {
-                    await accountDestino.update(
-                        { saldo: accountDestino.saldo - expense.valor },
+                const oldDestino = await models.Accounts.findByPk(expense.destinoId, { transaction: t });
+                if (oldDestino) {
+                    await oldDestino.update(
+                        { saldo: Number(oldDestino.saldo) - Number(expense.valor) },
                         { transaction: t }
                     );
-                    console.log(`🔄 Se restó ${expense.valor} de la cuenta destino`);
                 }
             }
-    
-            // 4️⃣ Aplicar los nuevos valores del gasto
-            expense.cuentaId = newExpenseData.cuentaId;
-            expense.destinoId = newExpenseData.destinoId;
-            expense.valor = newExpenseData.valor;
-            expense.description = newExpenseData.description;
-            expense.fecha = newExpenseData.fecha;
-    
-            await expense.save({ transaction: t });
-    
-            // 5️⃣ Aplicar saldo actualizado a cuenta origen
-            const newAccountExpense = await models.Accounts.findByPk(newExpenseData.cuentaId, { transaction: t });
-            if (newAccountExpense) {
-                await newAccountExpense.update(
-                    { saldo: newAccountExpense.saldo - newExpenseData.valor },
+
+            // Actualizar el gasto
+            await expense.update({
+                cuentaId: newExpenseData.cuentaId,
+                destinoId: newExpenseData.destinoId,
+                valor: newExpenseData.valor,
+                description: newExpenseData.description,
+                fecha: newExpenseData.fecha,
+            }, { transaction: t });
+
+            // Aplicar nuevos saldos
+            const newAccount = await models.Accounts.findByPk(newExpenseData.cuentaId, { transaction: t });
+            if (newAccount) {
+                await newAccount.update(
+                    { saldo: Number(newAccount.saldo) - Number(newExpenseData.valor) },
                     { transaction: t }
                 );
-                console.log(`✅ Se restó ${newExpenseData.valor} de la cuenta origen`);
             }
-    
-            // 6️⃣ Aplicar saldo actualizado a cuenta destino (si existe)
+
             if (newExpenseData.destinoId) {
-                const newAccountDestino = await models.Accounts.findByPk(newExpenseData.destinoId, { transaction: t });
-                if (newAccountDestino) {
-                    await newAccountDestino.update(
-                        { saldo: newAccountDestino.saldo + newExpenseData.valor },
+                const newDestino = await models.Accounts.findByPk(newExpenseData.destinoId, { transaction: t });
+                if (newDestino) {
+                    await newDestino.update(
+                        { saldo: Number(newDestino.saldo) + Number(newExpenseData.valor) },
                         { transaction: t }
                     );
-                    console.log(`✅ Se sumó ${newExpenseData.valor} a la cuenta destino`);
                 }
             }
-    
+
             console.log(`✏️ Gasto actualizado correctamente`);
         });
     }
@@ -150,10 +148,9 @@ class ExpensesService {
             const accountExpense = await models.Accounts.findByPk(expense.cuentaId, { transaction: t });
             if (accountExpense) {
                 await accountExpense.update(
-                    { saldo: accountExpense.saldo + expense.valor },
+                    { saldo: Number(accountExpense.saldo) + Number(expense.valor) },
                     { transaction: t }
                 );
-                console.log(`✅ Se devolvió ${expense.valor} a la cuenta origen`);
             }
     
             // 3️⃣ Restar saldo de la cuenta destino (si existe)
@@ -161,10 +158,9 @@ class ExpensesService {
                 const accountDestino = await models.Accounts.findByPk(expense.destinoId, { transaction: t });
                 if (accountDestino) {
                     await accountDestino.update(
-                        { saldo: accountDestino.saldo - expense.valor },
+                        { saldo: Number(accountDestino.saldo) - Number(expense.valor) },
                         { transaction: t }
                     );
-                    console.log(`✅ Se restó ${expense.valor} de la cuenta destino`);
                 }
             }
     

@@ -19,7 +19,7 @@ const accountsSchema = {
     },
     saldo: {
         allowNull: false,
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         defaultValue: 0
     },
     userId: {

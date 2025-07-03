@@ -86,7 +86,8 @@ class TaskService {
             if (!task.folder.public && task.folder.owner !== userId) {
                 throw boom.unauthorized('No tienes permiso para completar esta tarea');
             }
-            await task.update({ completed: true });
+            const now = Date.now()
+            await task.update({ completed: true, dateEnd: now });
             const user = await models.User.findByPk(userId)
             await user.update({ points: user.points + task.points })
             await models.HystoryTask.create({
@@ -180,7 +181,7 @@ class TaskService {
         const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
         if (isNaN(startDate) || isNaN(endDate)) {
-        throw boom.badRequest('Fecha inválida generada');
+            throw boom.badRequest('Fecha inválida generada');
         }
 
         const taskPerMonth = await models.HystoryTask.findAll({

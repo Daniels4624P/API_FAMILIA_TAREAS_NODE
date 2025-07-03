@@ -10,9 +10,21 @@ const config = require('../config/config')
 router.post('/register', async (req, res, next) => {
     try {
         const newUser = req.body
-        const response = await serviceUser.createUser(newUser)
-        delete response.dataValues.password
-        res.status(201).json(response)
+        const { user, accessToken, refreshToken } = await serviceAuth.register(newUser)
+        delete user.dataValues.password
+        
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: 'strict',
+            secure: config.nodeEnv === 'production' ? true : false 
+        }).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 604800000,
+            sameSite: 'strict',
+            secure: config.nodeEnv === 'production' ? true : false 
+        })
+        res.status(201).json(user)
     } catch (err) {
         next(err)
     }
@@ -74,8 +86,7 @@ router.delete('/logout', verifyToken, async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refreshToken
         const response = await serviceAuth.logout(refreshToken)
-        res.clearCookie('accessToken').clearCookie('refreshToken')
-        res.json(response)
+        res.clearCookie('accessToken').clearCookie('refreshToken').json(response)
     } catch (err) {
         next(err)
     }
@@ -97,7 +108,7 @@ router.post('/refresh', async (req, res, next) => {
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
-        res.redirect('/profile')
+        res.json({ message: 'Tokens Refrescados' })
     } catch (err) {
         next(err)
     }

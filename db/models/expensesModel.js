@@ -40,7 +40,7 @@ const expensesSchema = {
         onDelete: 'SET NULL'
     },
     valor: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false,
         defaultValue: 0
     },

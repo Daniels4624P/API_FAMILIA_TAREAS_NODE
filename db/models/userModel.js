@@ -33,6 +33,16 @@ const userSchema = {
         field: 'recovery_token',
         type: DataTypes.STRING,
         allowNull: true
+    },
+    recoveryTokenExpire: {
+        field: 'recovery_token_expire',
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    refreshToken: {
+        field: 'refresh_token',
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }
 

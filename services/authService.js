@@ -9,6 +9,17 @@ const generateCode = require('../utils/generateCode')
 const jwt = require('jsonwebtoken')
 
 class AuthService {
+    async register(newUser) {
+        const user = await service.createUser(newUser)
+        const payload = {
+            sub: user.id
+        }
+        const accessToken = generateToken(payload, 'Access')
+        const refreshToken = generateToken(payload, 'Refresh')
+
+        return { user, accessToken, refreshToken }
+    }
+
     async getUser(email, password) {
         const user = await service.getUserForEmail(email)
         if (!user) {
@@ -30,7 +41,7 @@ class AuthService {
         const accessToken = generateToken(payload, 'Access')
         const refreshToken = generateToken(payload, 'Refresh')
 
-        await service.update(user.id, { refresh_token: refreshToken })
+        const userUpdated = await service.update(user.id, { refreshToken })
         return { user, accessToken, refreshToken }
     }
 
@@ -42,8 +53,8 @@ class AuthService {
         const token = generateCode()
         const now = Date.now()
         const TEN_MINUTES = 10 * 60 * 1000
-        const link = `https://proyecto-familia-tareas-frontend.onrender.com/recovery?token=${token}`
-        await service.update(user.id, { recoveryToken: token, recovery_token_expire: new Date(now + TEN_MINUTES ) })
+        const link = config.nodeEnv === 'production' ? `https://proyecto-familia-tareas-frontend.onrender.com/recovery?token=${token}` : `http://localhost:5173/recovery?token=${token}`
+        const userUpdated = await service.update(user.id, { recoveryToken: token, recoveryTokenExpire: new Date(now + TEN_MINUTES ) })
         let transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 465,
@@ -68,7 +79,7 @@ class AuthService {
         try {
             const user = await service.getUserForRecoveryToken(token)
             const hash = await bcrypt.hash(newPassword, 10)
-            await service.update(user.id, { password: hash, recovery_token: null, recovery_token_expire: null })
+            const userUpdated = await service.update(user.id, { password: hash, recoveryToken: null, recoveryTokenExpire: null })
             return { message: 'changed password' }
         } catch (err) {
             throw boom.unauthorized()
@@ -78,7 +89,7 @@ class AuthService {
     async logout(refreshToken) {
         try {
             const user = await service.getUserForRefreshToken(refreshToken)
-            await service.update(user.id, { recovery_token: null, recovery_token_expire: null, refresh_token: null })
+            const userUpdated = await service.update(user.id, { recoveryToken: null, recoveryTokenExpire: null, refreshToken: null })
             return { message:'Logout exitoso' }
         } catch (error) {
             throw boom.forbidden()
@@ -89,9 +100,9 @@ class AuthService {
         try {
             const user = await service.getUserForRefreshToken(refreshToken)
             const payload = jwt.verify(refreshToken, config.jwtSecretRefresh)
-            const newAccessToken = generateToken(payload, 'Access')
-            const newRefreshToken = generateToken(payload, 'Refresh')
-            await service.update(user.id, { refresh_token: newRefreshToken })
+            const newAccessToken = generateToken({ sub: user.id }, 'Access')
+            const newRefreshToken = generateToken({ sub: user.id }, 'Refresh')
+            const userUpdated = await service.update(user.id, { refreshToken: newRefreshToken })
             return { newAccessToken, newRefreshToken }
         } catch (err) {
             throw boom.forbidden()

@@ -2,7 +2,9 @@ const { Sequelize } = require('sequelize')
 const config = require('./../config/config')
 const setupModels = require('./../db/models/index')
 
-const URI = `postgresql://${config.dbUser}:${config.dbPassword}@${config.dbHost}/${config.dbName}`
+const USER = encodeURIComponent(config.dbUser)
+const PASSWORD = encodeURIComponent(config.dbPassword)
+const URI = `postgresql://${USER}:${PASSWORD}@${config.dbHost}/${config.dbName}?sslmode=require&channel_binding=require`
 
 const sequelize = new Sequelize(URI, {
     dialect: 'postgres',

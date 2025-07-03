@@ -17,6 +17,7 @@ class UserService {
         if (!user) {
             throw boom.notFound('No se encontro el usuario')
         }
+        delete user.dataValues.password
         return user
     } 
 
@@ -92,7 +93,7 @@ class UserService {
     }    
 
     async getScoreUsers() {
-        const users = await models.User.findAll()
+        const users = await models.User.findAll({ order: [['points', 'DESC']] })
         const usersFormat = users.map(user => ({
             name: user.name,
             points: user.points
@@ -106,26 +107,29 @@ class UserService {
             throw boom.forbidden()
         }
         await user.update(changes)
+        return user
     }
 
     async getUserForRefreshToken(refreshToken) {
-        const user = await models.User.findOne({ where: { refresh_token: refreshToken }})
+        const user = await models.User.findOne({ where: { refreshToken }})
         if (!user) {
             throw boom.forbidden()
         }
+        delete user.dataValues.password
         return user
     }
 
     async getUserForRecoveryToken(recoveryToken) {
         const user = await models.User.findOne({ where: { 
-            recovery_token: recoveryToken, 
-            recovery_token_expire: {
-                [Op.lte]: [Date.now()]
+            recoveryToken, 
+            recoveryTokenExpire: {
+                [Op.gte]: new Date()
             }
         }})
         if (!user) {
             throw boom.forbidden()
         }
+        delete user.dataValues.password
         return user
     }
 }

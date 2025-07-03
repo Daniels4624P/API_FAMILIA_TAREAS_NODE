@@ -4,6 +4,7 @@ const { Op } = require('sequelize')
 
 class AccountsService {
     async createAccount(account) {
+        account.saldo = Number(account.saldo)
         const newAccount = await models.Accounts.create(account)
         if (!newAccount) {
             throw boom.notFound('No se pudo crear la cuenta')
@@ -40,6 +41,7 @@ class AccountsService {
     }
 
     async updateAccount(userId, id, changes) {
+        changes.saldo = Number(changes.saldo)
         const account = await models.Accounts.findOne({
             where: {
                 id,
@@ -74,8 +76,6 @@ class AccountsService {
     }
 
     async getAccountStatistics(userId) {
-        console.log(userId)
-
         const accounts = await models.Accounts.findAll({
             where: { userId, public: true },
             attributes: ['id', 'name']

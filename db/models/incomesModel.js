@@ -40,7 +40,7 @@ const incomesSchema = {
         allowNull: false,
     },
     valor: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false,
         defaultValue: 0
     },

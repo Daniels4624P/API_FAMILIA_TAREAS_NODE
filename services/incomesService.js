@@ -5,6 +5,7 @@ const { Op } = require('sequelize')
 
 class IncomesService {
     async createIncome(income) {
+        income.valor = Number(income.valor)
         return await sequelize.transaction(async (t) => {
             // 1️⃣ Crear el ingreso
             const newIncome = await models.Incomes.create(income, { transaction: t });
@@ -16,7 +17,7 @@ class IncomesService {
             }
     
             await accountIncome.update(
-                { saldo: accountIncome.saldo - newIncome.valor }, // 🔥 Se RESTA en la cuenta origen
+                { saldo: Number(accountIncome.saldo) - Number(newIncome.valor) }, // 🔥 Se RESTA en la cuenta origen
                 { transaction: t }
             );
             console.log(`✅ Se restó ${newIncome.valor} de la cuenta origen`);
@@ -29,7 +30,7 @@ class IncomesService {
                 }
     
                 await accountDestino.update(
-                    { saldo: accountDestino.saldo + newIncome.valor }, // ✅ Se SUMA en la cuenta destino
+                    { saldo: Number(accountDestino.saldo) + Number(newIncome.valor) }, // ✅ Se SUMA en la cuenta destino
                     { transaction: t }
                 );
                 console.log(`✅ Se sumó ${newIncome.valor} a la cuenta destino`);
@@ -68,6 +69,7 @@ class IncomesService {
     }
 
     async updateIncome(userId, id, changes) {
+        changes.valor = Number(changes.valor)
         return await sequelize.transaction(async (t) => {
             // 1️⃣ Buscar el ingreso
             const income = await models.Incomes.findOne({
@@ -86,7 +88,7 @@ class IncomesService {
     
             // 3️⃣ Revertir el impacto anterior
             await accountIncome.update(
-                { saldo: accountIncome.saldo + income.valor }, // 🔥 Se regresa el valor original a la cuenta de origen
+                { saldo: Number(accountIncome.saldo) + Number(income.valor) }, // 🔥 Se regresa el valor original a la cuenta de origen
                 { transaction: t }
             );
     
@@ -94,7 +96,7 @@ class IncomesService {
                 const accountDestino = await models.Accounts.findByPk(income.destinoId, { transaction: t });
                 if (accountDestino) {
                     await accountDestino.update(
-                        { saldo: accountDestino.saldo - income.valor }, // 🔥 Se revierte la suma en la cuenta destino
+                        { saldo: Number(accountDestino.saldo) - Number(income.valor) }, // 🔥 Se revierte la suma en la cuenta destino
                         { transaction: t }
                     );
                 }
@@ -108,7 +110,7 @@ class IncomesService {
     
             // 5️⃣ Aplicar el nuevo impacto
             await accountIncome.update(
-                { saldo: accountIncome.saldo - newValor }, // ✅ Se resta el nuevo valor en la cuenta de origen
+                { saldo: Number(accountIncome.saldo) - Number(newValor) }, // ✅ Se resta el nuevo valor en la cuenta de origen
                 { transaction: t }
             );
     
@@ -119,7 +121,7 @@ class IncomesService {
                 }
     
                 await accountDestino.update(
-                    { saldo: accountDestino.saldo + newValor }, // ✅ Se suma el nuevo valor en la cuenta destino
+                    { saldo: Number(accountDestino.saldo) + Number(newValor) }, // ✅ Se suma el nuevo valor en la cuenta destino
                     { transaction: t }
                 );
             }
@@ -147,7 +149,7 @@ class IncomesService {
     
             // 3️⃣ Revertir impacto antes de eliminar
             await accountIncome.update(
-                { saldo: accountIncome.saldo + income.valor }, // 🔥 Se regresa el valor a la cuenta origen
+                { saldo: Number(accountIncome.saldo) + Number(income.valor) }, // 🔥 Se regresa el valor a la cuenta origen
                 { transaction: t }
             );
     
@@ -155,7 +157,7 @@ class IncomesService {
                 const accountDestino = await models.Accounts.findByPk(income.destinoId, { transaction: t });
                 if (accountDestino) {
                     await accountDestino.update(
-                        { saldo: accountDestino.saldo - income.valor }, // 🔥 Se revierte la suma en la cuenta destino
+                        { saldo: Number(accountDestino.saldo) - Number(income.valor) }, // 🔥 Se revierte la suma en la cuenta destino
                         { transaction: t }
                     );
                 }
