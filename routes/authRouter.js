@@ -200,7 +200,7 @@ router.get('/x/callback', async (req, res, next) => {
     }
 })
 
-router.get('/google-calendar-status', async (req, res, next) => {
+router.get('/google-calendar-status', (req, res, next) => {
     if (req.cookies.accessTokenGoogle) {
         res.json({ hasAccess: true })
     } else {
