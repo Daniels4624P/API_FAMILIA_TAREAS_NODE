@@ -12,7 +12,14 @@ const config = {
     jwtSecretRefresh: process.env.JWT_SECRET_REFRESH,
     emailApi: process.env.SMTP_EMAIL,
     passEmail: process.env.SMTP_PASS,
-    urlFastApi: process.env.URL_FASTAPI
+    urlFastApi: process.env.URL_FASTAPI,
+    googleRedirectUri: process.env.GOOGLE_REDIRECT_URI,
+    googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    xRedirectUri: process.env.X_REDIRECT_URI,
+    xClientId: process.env.X_CLIENT_ID,
+    xClientSecret: process.env.X_CLIENT_SECRET,
+    googleRedirectUri2: process.env.GOOGLE_REDIRECT_URI2
 }
 
 module.exports = config

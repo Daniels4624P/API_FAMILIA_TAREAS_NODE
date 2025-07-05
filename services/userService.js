@@ -47,6 +47,13 @@ class UserService {
     }
 
     async createUser(data) {
+        if (!data.password) {
+            const newUser = await models.User.create(data)
+            if (!newUser) {
+                throw boom.notFound('No se pudo crear el usuario')
+            }
+            return newUser
+        }
         const hash = await bcrypt.hash(data.password, 10)
         const user = {
             ...data,
@@ -130,6 +137,16 @@ class UserService {
             throw boom.forbidden()
         }
         delete user.dataValues.password
+        return user
+    }
+
+    async getUserForGoogleId(googleId, email) {
+        const user = await models.User.findOne({ where: { [Op.or]: [{ googleId }, { email }] } })
+        return user
+    }
+
+    async getUserForTwitterId(twitterId) {
+        const user = await models.User.findOne({ where: { twitterId } })
         return user
     }
 }

@@ -62,6 +62,18 @@ router.get('/profile', verifyToken, async (req, res, next) => {
         }
     })
 
+router.patch('/profile', verifyToken, async (req, res, next) => {
+    try {
+        const user = req.user
+        const changes = req.body
+        const userUpdated = await serviceUser.update(user.sub, changes)
+        delete userUpdated.dataValues.password
+        res.json(userUpdated)
+    } catch (err) {
+        next(err)
+    }
+})
+
 router.post('/recovery', async (req, res, next) => {
     try {
         const { email } = req.body
@@ -86,7 +98,7 @@ router.delete('/logout', verifyToken, async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refreshToken
         const response = await serviceAuth.logout(refreshToken)
-        res.clearCookie('accessToken').clearCookie('refreshToken').json(response)
+        res.clearCookie('accessToken').clearCookie('refreshToken').clearCookie('accessTokenGoogle').json(response)
     } catch (err) {
         next(err)
     }
@@ -109,6 +121,80 @@ router.post('/refresh', async (req, res, next) => {
         })
 
         res.json({ message: 'Tokens Refrescados' })
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.get('/google/handler', (req, res, next) => {
+    try {
+        const { url } = serviceAuth.googleHandler()
+        res.json(url)
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.get('/google/callback', async (req, res, next) => {
+    try {
+        const state = req.query.state
+        const code = req.query.code
+        const { accessToken, refreshToken, accessTokenGoogle } = await serviceAuth.googleCallback(state, code)
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: 'strict',
+            secure: config.nodeEnv === 'production' ? true : false 
+        }).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: 'strict',
+            secure: config.nodeEnv === 'production' ? true : false 
+        }).cookie('accessTokenGoogle', accessTokenGoogle, {
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: 'strict',
+            secure: config.nodeEnv === 'production' ? true : false 
+        })
+
+        const urlRedirect = config.nodeEnv === 'production' ? 'https://proyecto-familia-tareas-frontend.onrender.com' : 'http://localhost:5173'
+        res.redirect(urlRedirect)
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.get('/x/handler', (req, res, next) => {
+    try {
+        const { url } = serviceAuth.xHandler()
+        
+        res.json(url)
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.get('/x/callback', async (req, res, next) => {
+    try {
+        const { code, state } = req.query
+
+        const { accessToken, refreshToken, user } = await serviceAuth.xCallback(state, code)
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: 'strict',
+            secure: config.nodeEnv === 'production' ? true : false 
+        }).cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: 'strict',
+            secure: config.nodeEnv === 'production' ? true : false 
+        })
+
+        const urlRedirect = config.nodeEnv === 'production' ? 'https://proyecto-familia-tareas-frontend.onrender.com' : 'http://localhost:5173'
+        res.redirect(urlRedirect)
     } catch (err) {
         next(err)
     }

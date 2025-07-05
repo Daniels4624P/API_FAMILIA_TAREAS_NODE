@@ -18,7 +18,7 @@ const userSchema = {
         type: DataTypes.STRING,
     },
     password: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING,
     },
     points: {
@@ -42,6 +42,21 @@ const userSchema = {
     refreshToken: {
         field: 'refresh_token',
         type: DataTypes.STRING,
+        allowNull: true
+    },
+    googleId: {
+        field: 'google_id',
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    authProvider: {
+        field: 'auth_provider',
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    twitterId: {
+        field: 'twitter_id',
+        type: DataTypes.TEXT,
         allowNull: true
     }
 }

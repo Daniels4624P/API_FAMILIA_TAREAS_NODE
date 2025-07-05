@@ -2,14 +2,22 @@ const express = require('express')
 const router = express.Router()
 const { verifyToken } = require('../middlewares/authHandler')
 const TaskService = require('./../services/taskService')
+const config = require('../config/config')
 const service = new TaskService()
+const randomString = require('randomstring')
+const querystring = require('querystring')
+const generateCodeChallenge = require('../utils/generateCode')
+const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
+const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
+const session = {}
 
 router.post('/', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const task = req.body
-            const response = await service.createTask(task, userId)
-            res.status(201).json(response)
+            const accessTokenGoogle = req.cookies.accessTokenGoogle
+            const response = await service.createTask(task, userId, accessTokenGoogle)
+            res.status(201).json({ newTask: response.newTask, resultCalendar: response.result })
         } catch (err) {
             next(err)
         }
@@ -21,7 +29,8 @@ router.patch('/:id', verifyToken, async (req, res, next) => {
             const userId = req.user.sub
             const { id } = req.params
             const changes = req.body
-            const response = await service.updateTask(id, changes, userId)
+            const accessTokenGoogle = req.cookies.accessTokenGoogle
+            const response = await service.updateTask(id, changes, userId, accessTokenGoogle)
             res.json(response)
         } catch (err) {
             next(err)
@@ -33,7 +42,8 @@ router.delete('/:id', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { id } = req.params
-            const response = await service.deleteTask(id, userId)
+            const accessTokenGoogle = req.cookies.accessTokenGoogle
+            const response = await service.deleteTask(id, userId, accessTokenGoogle)
             res.json(response)
         } catch (err) {
             next(err)
@@ -87,5 +97,64 @@ router.get('/tasks/monthly', verifyToken, async (req, res, next) => {
         }
     }
 )
+
+router.get('/google/handler', verifyToken, async (req, res, next) => {
+    try {
+        const scopes = [
+            'https://www.googleapis.com/auth/calendar'
+        ]
+        const state = randomString.generate(16)
+        session['state'] = state
+
+        const query = querystring.stringify({
+            client_id: config.googleClientId,
+            scope: scopes.join(' '),
+            response_type: 'code',
+            redirect_uri: config.googleRedirectUri2,
+            state
+        })
+
+        res.json(`${GOOGLE_AUTH_URL}?${query}`)
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.get('/google/callback', async (req, res, next) => {
+    if (req.query.state !== session.state) {
+        res.redirect('http://localhost:5173')
+    }
+
+    const options = {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: querystring.stringify({
+            grant_type: 'authorization_code',
+            code: req.query.code,
+            redirect_uri: config.googleRedirectUri2,
+            client_id: config.googleClientId,
+            client_secret: config.googleClientSecret
+        })
+    }
+
+    try {
+        const response = await fetch(GOOGLE_TOKEN_URL, options)
+        const result = await response.json()
+
+        res.cookie('accessTokenGoogle', result.access_token, {
+            httpOnly: true,
+            maxAge: 3600000,
+            sameSite: 'strict',
+            secure: config.nodeEnv === 'production' ? true : false 
+        })
+
+        const urlRedirect = config.nodeEnv === 'production' ? 'https://proyecto-familia-tareas-frontend.onrender.com' : 'http://localhost:5173'
+        res.redirect(urlRedirect)
+    } catch (err) {
+        next(err)
+    }
+})
 
 module.exports = router

@@ -14,7 +14,7 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin: 'http://localhost:5173', // Tu frontend
+  origin: ['http://localhost:5173', 'http://localhost:8081'], // Tu frontend
   credentials: true, // Permitir cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']

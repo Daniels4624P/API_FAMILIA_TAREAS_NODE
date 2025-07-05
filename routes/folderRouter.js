@@ -81,6 +81,10 @@ router.get('/:folderId/tasks', verifyToken, async (req, res, next) => {
         try {
             const userId = req.user.sub
             const { folderId } = req.params
+            const accessTokenGoogle = req.cookies.accessTokenGoogle
+            if (!accessTokenGoogle) {
+                res.json({ message: 'Verifica el correo para crear tareas privadas con google' })
+            }
             const tasks = await service.getAllTasksInFolder(folderId, userId)
             res.json(tasks)
         } catch (err) {

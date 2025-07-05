@@ -46,6 +46,11 @@ const taskSchema = {
         field: 'date_end',
         type: DataTypes.DATE,
         allowNull: true
+    },
+    googleEventId: {
+        field: 'google_event_id',
+        type: DataTypes.TEXT,
+        allowNull: true
     }
 }
 
