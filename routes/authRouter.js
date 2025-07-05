@@ -16,12 +16,12 @@ router.post('/register', async (req, res, next) => {
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         }).cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 604800000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
         res.status(201).json(user)
@@ -37,12 +37,12 @@ router.post('/login', async (req, res, next) => {
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         }).cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 604800000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
         res.status(201).json(user)
@@ -111,12 +111,12 @@ router.post('/refresh', async (req, res, next) => {
         res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         }).cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
             maxAge: 604800000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
@@ -144,17 +144,17 @@ router.get('/google/callback', async (req, res, next) => {
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         }).cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         }).cookie('accessTokenGoogle', accessTokenGoogle, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
@@ -184,12 +184,12 @@ router.get('/x/callback', async (req, res, next) => {
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         }).cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
 

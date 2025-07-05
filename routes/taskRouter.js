@@ -121,8 +121,9 @@ router.get('/google/handler', verifyToken, async (req, res, next) => {
 })
 
 router.get('/google/callback', async (req, res, next) => {
+    const urlRedirect = config.nodeEnv === 'production' ? 'https://proyecto-familia-tareas-frontend.onrender.com' : 'http://localhost:5173'
     if (req.query.state !== session.state) {
-        res.redirect('http://localhost:5173')
+        res.redirect(urlRedirect)
     }
 
     const options = {
@@ -146,11 +147,10 @@ router.get('/google/callback', async (req, res, next) => {
         res.cookie('accessTokenGoogle', result.access_token, {
             httpOnly: true,
             maxAge: 3600000,
-            sameSite: 'strict',
+            sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
-        const urlRedirect = config.nodeEnv === 'production' ? 'https://proyecto-familia-tareas-frontend.onrender.com' : 'http://localhost:5173'
         res.redirect(urlRedirect)
     } catch (err) {
         next(err)
