@@ -201,10 +201,10 @@ router.get('/x/callback', async (req, res, next) => {
 })
 
 router.get('/google-calendar-status', async (req, res, next) => {
-    if (!req.cookies.accessTokenGoogle) {
-        res.json({ hasAccess: false })
-    } else {
+    if (req.cookies.accessTokenGoogle) {
         res.json({ hasAccess: true })
+    } else {
+        res.json({ hasAccess: false })
     }
 })
 
