@@ -53,7 +53,6 @@ router.post('/login', async (req, res, next) => {
 
 router.get('/profile', verifyToken, async (req, res, next) => {
         try {
-            console.log(req.cookies)
             const user = req.user
             const perfil = await serviceUser.getUserForId(user.sub)
             delete perfil.dataValues.password
