@@ -14,7 +14,7 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:8081', 'https://proyecto-familia-tareas-frontend.onrender.com'], // Tu frontend
+  origin: ['http://localhost:5173', 'http://localhost:8081', 'https://proyecto-familia-tareas-frontend.onrender.com', 'https://familia-tareas.netlify.app'], // Tu frontend
   credentials: true, // Permitir cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
