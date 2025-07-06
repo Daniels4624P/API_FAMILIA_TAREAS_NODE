@@ -17,7 +17,7 @@ class IncomesService {
             }
     
             await accountIncome.update(
-                { saldo: Number(accountIncome.saldo) - Number(newIncome.valor) }, // 🔥 Se RESTA en la cuenta origen
+                { saldo: Number(accountIncome.saldo) + Number(newIncome.valor) }, // 🔥 Se RESTA en la cuenta origen
                 { transaction: t }
             );
             console.log(`✅ Se restó ${newIncome.valor} de la cuenta origen`);
@@ -30,7 +30,7 @@ class IncomesService {
                 }
     
                 await accountDestino.update(
-                    { saldo: Number(accountDestino.saldo) + Number(newIncome.valor) }, // ✅ Se SUMA en la cuenta destino
+                    { saldo: Number(accountDestino.saldo) - Number(newIncome.valor) }, // ✅ Se SUMA en la cuenta destino
                     { transaction: t }
                 );
                 console.log(`✅ Se sumó ${newIncome.valor} a la cuenta destino`);
@@ -88,7 +88,7 @@ class IncomesService {
     
             // 3️⃣ Revertir el impacto anterior
             await accountIncome.update(
-                { saldo: Number(accountIncome.saldo) + Number(income.valor) }, // 🔥 Se regresa el valor original a la cuenta de origen
+                { saldo: Number(accountIncome.saldo) - Number(income.valor) }, // 🔥 Se regresa el valor original a la cuenta de origen
                 { transaction: t }
             );
     
@@ -110,7 +110,7 @@ class IncomesService {
     
             // 5️⃣ Aplicar el nuevo impacto
             await accountIncome.update(
-                { saldo: Number(accountIncome.saldo) - Number(newValor) }, // ✅ Se resta el nuevo valor en la cuenta de origen
+                { saldo: Number(accountIncome.saldo) + Number(newValor) }, // ✅ Se resta el nuevo valor en la cuenta de origen
                 { transaction: t }
             );
     
@@ -121,7 +121,7 @@ class IncomesService {
                 }
     
                 await accountDestino.update(
-                    { saldo: Number(accountDestino.saldo) + Number(newValor) }, // ✅ Se suma el nuevo valor en la cuenta destino
+                    { saldo: Number(accountDestino.saldo) - Number(newValor) }, // ✅ Se suma el nuevo valor en la cuenta destino
                     { transaction: t }
                 );
             }
@@ -149,7 +149,7 @@ class IncomesService {
     
             // 3️⃣ Revertir impacto antes de eliminar
             await accountIncome.update(
-                { saldo: Number(accountIncome.saldo) + Number(income.valor) }, // 🔥 Se regresa el valor a la cuenta origen
+                { saldo: Number(accountIncome.saldo) - Number(income.valor) }, // 🔥 Se regresa el valor a la cuenta origen
                 { transaction: t }
             );
     
@@ -157,7 +157,7 @@ class IncomesService {
                 const accountDestino = await models.Accounts.findByPk(income.destinoId, { transaction: t });
                 if (accountDestino) {
                     await accountDestino.update(
-                        { saldo: Number(accountDestino.saldo) - Number(income.valor) }, // 🔥 Se revierte la suma en la cuenta destino
+                        { saldo: Number(accountDestino.saldo) + Number(income.valor) }, // 🔥 Se revierte la suma en la cuenta destino
                         { transaction: t }
                     );
                 }

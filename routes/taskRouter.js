@@ -157,4 +157,27 @@ router.get('/google/callback', async (req, res, next) => {
     }
 })
 
+router.patch('/update/google/event/:id', async (req, res, next) => {
+    try {
+        const accessTokenGoogle = req.cookies.accessTokenGoogle
+        const { id } = req.params
+        const changes = req.body
+        const result = await service.updateEventGoogle(accessTokenGoogle, id, changes)
+        res.json(result)
+    } catch (error) {
+        next(error)
+    }
+})
+
+router.delete('/update/google/event/:id', async (req, res, next) => {
+    try {
+        const accessTokenGoogle = req.cookies.accessTokenGoogle
+        const { id } = req.params
+        const result = await service.deleteEventGoogle(accessTokenGoogle, id)
+        res.json(result)
+    } catch (error) {
+        next(error)
+    }
+})  
+
 module.exports = router

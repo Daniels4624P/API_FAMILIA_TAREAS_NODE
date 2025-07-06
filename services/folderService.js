@@ -1,6 +1,7 @@
 const boom = require('@hapi/boom')
 const { models } = require('./../libs/sequelize')
 const { Op } = require('sequelize')
+const GOOGLE_CALENDAR_EVENTS = 'https://www.googleapis.com/calendar/v3/calendars/primary/events'
 
 class FolderService {
     async createFolder(data, userId) {
@@ -74,7 +75,30 @@ class FolderService {
         return folderId
     }
 
-    async getAllTasksInFolder(folderId, userId) {
+    async getAllTasksInFolder(folderId, userId, accessTokenGoogle) {
+        if (accessTokenGoogle) {
+            const response = await fetch(GOOGLE_CALENDAR_EVENTS, {
+                headers: {
+                    Authorization: `Bearer ${accessTokenGoogle}`
+                }
+            })
+            const dataGoogle = await response.json()
+
+            const folder = await models.Folder.findOne({
+                include: ['tasks'],
+                where: {
+                    id: folderId,
+                    [Op.or]: [
+                        { public: true },
+                        { owner: userId }
+                    ]
+                }
+            })
+            if (!folder) {
+                throw boom.notFound('La carpeta no existe')
+            }
+            return { folder, dataGoogle: dataGoogle.items }
+        }
         const folder = await models.Folder.findOne({
             include: ['tasks'],
             where: {

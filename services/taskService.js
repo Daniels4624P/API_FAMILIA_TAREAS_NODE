@@ -381,6 +381,87 @@ class TaskService {
 
         return taskPerMonth
     }
+
+    async updateEventGoogle(accessTokenGoogle, eventId, changes) {
+        if (!accessTokenGoogle) {
+            throw boom.unauthorized()
+        }
+        const event = {}
+
+        if (changes.summary) {
+            event.summary = changes.summary
+        }
+
+        if (changes.description) {
+            event.description = changes.description
+        }
+
+        if (changes.startDate) {
+            event.start = {}
+            event.dateTime = changes.startDate
+        }
+
+        if (changes.endDate) {
+            event.end = {}
+            event.dateTime = changes.endDate
+        }
+
+        if (changes.popupTime) {
+            event.reminders = {}
+            event.reminders.useDefault = false
+            event.reminders.overrides = []
+            event.reminders.overrides.push({ method: 'popup', minutes: changes.popupTime })
+        }
+
+        if (changes.emailTime) {
+            event.reminders = {}
+            event.reminders.useDefault = false
+            event.reminders.overrides = []
+            event.reminders.overrides.push({ method: 'email', minutes: changes.emailTime })
+        }
+
+        const urlUpdateEvent = GOOGLE_CALENDAR_UPDATE_EVENT(eventId)
+        const response = await fetch(urlUpdateEvent, {
+            method: 'PATCH',
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessTokenGoogle}`
+            },
+            body: JSON.stringify(event)
+        })
+
+        if (!response.ok) {
+            console.error('No se pudo actualizar')
+            throw boom.notFound()
+        }
+
+        const result = await response.json()
+
+        return result
+    }
+
+    async deleteEventGoogle(accessTokenGoogle, eventId) {
+        if (!accessTokenGoogle) {
+            throw boom.unauthorized()
+        }
+        
+        const urlUpdateEvent = GOOGLE_CALENDAR_UPDATE_EVENT(eventId)
+        const response = await fetch(urlUpdateEvent, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${accessTokenGoogle}`
+            }
+        })
+
+        if (response.status !== 204) {
+            console.error('No se pudo borrar')
+            throw boom.notFound()
+        }
+
+        const result = await response.json()
+
+        return result
+    }
 }
 
 module.exports = TaskService

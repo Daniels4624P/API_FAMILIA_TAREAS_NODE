@@ -79,9 +79,10 @@ router.delete('/:id', verifyToken, async (req, res, next) => {
 
 router.get('/:folderId/tasks', verifyToken, async (req, res, next) => {
         try {
+            const accessTokenGoogle = req.cookies.accessTokenGoogle
             const userId = req.user.sub
             const { folderId } = req.params
-            const tasks = await service.getAllTasksInFolder(folderId, userId)
+            const tasks = await service.getAllTasksInFolder(folderId, userId, accessTokenGoogle)
             res.json(tasks)
         } catch (err) {
             next(err)
