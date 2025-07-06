@@ -159,7 +159,7 @@ router.get('/google/callback', async (req, res, next) => {
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
-        const urlRedirect = config.nodeEnv === 'production' ? 'https://proyecto-familia-tareas-frontend.onrender.com' : 'http://localhost:5173'
+        const urlRedirect = config.nodeEnv === 'production' ? 'https://familia-tareas.netlify.app' : 'http://localhost:5173'
         res.redirect(urlRedirect)
     } catch (err) {
         next(err)
@@ -195,7 +195,7 @@ router.get('/x/callback', async (req, res, next) => {
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
-        const urlRedirect = config.nodeEnv === 'production' ? 'https://proyecto-familia-tareas-frontend.onrender.com' : 'http://localhost:5173'
+        const urlRedirect = config.nodeEnv === 'production' ? 'https://familia-tareas.netlify.app' : 'http://localhost:5173'
         res.redirect(urlRedirect)
     } catch (err) {
         next(err)
