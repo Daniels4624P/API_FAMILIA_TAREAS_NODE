@@ -128,7 +128,8 @@ router.post('/refresh', async (req, res, next) => {
 
 router.get('/google/handler', (req, res, next) => {
     try {
-        const { url } = serviceAuth.googleHandler()
+        const { mobile, redirect_uri } = req.query
+        const { url } = serviceAuth.googleHandler(mobile, redirect_uri)
         res.json(url)
     } catch (err) {
         next(err)
@@ -167,7 +168,8 @@ router.get('/google/callback', async (req, res, next) => {
 
 router.get('/x/handler', (req, res, next) => {
     try {
-        const { url } = serviceAuth.xHandler()
+        const { mobile, redirect_uri } = req.query
+        const { url } = serviceAuth.xHandler(mobile, redirect_uri)
         
         res.json(url)
     } catch (err) {
