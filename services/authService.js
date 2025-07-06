@@ -120,7 +120,7 @@ class AuthService {
         }
     }
 
-    googleHandler() {
+    googleHandler(mobile, redirect_uri) {
         const scopes = [
             'openid',
             'email',
@@ -133,7 +133,7 @@ class AuthService {
 
         const query = queryString.stringify({
             response_type: 'code',
-            redirect_uri: config.googleRedirectUri,
+            redirect_uri: mobile ? redirect_uri : config.googleRedirectUri,
             client_id: config.googleClientId,
             scope: scopes.join(' '),
             state
@@ -199,7 +199,7 @@ class AuthService {
         return { accessToken, refreshToken }
     }
 
-    xHandler() {
+    xHandler(mobile, redirect_uri) {
         const scopes = [
             'tweet.read', 
             'users.read', 
@@ -216,7 +216,7 @@ class AuthService {
 
         const query = queryString.stringify({
             response_type: 'code',
-            redirect_uri: config.xRedirectUri,
+            redirect_uri: mobile ? redirect_uri : config.xRedirectUri,
             client_id: config.xClientId,
             scope: scopes.join(' '),
             state,
