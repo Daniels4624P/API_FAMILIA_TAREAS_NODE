@@ -121,7 +121,7 @@ router.get('/google/handler', verifyToken, async (req, res, next) => {
 })
 
 router.get('/google/callback', async (req, res, next) => {
-    const urlRedirect = config.nodeEnv === 'production' ? 'https://proyecto-familia-tareas-frontend.onrender.com' : 'http://localhost:5173'
+    const urlRedirect = config.nodeEnv === 'production' ? 'https://familia-tareas.netlify.app' : 'http://localhost:5173'
     if (req.query.state !== session.state) {
         res.redirect(urlRedirect)
     }
