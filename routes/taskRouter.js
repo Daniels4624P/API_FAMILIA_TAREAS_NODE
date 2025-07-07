@@ -151,7 +151,7 @@ router.get('/google/callback', async (req, res, next) => {
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
-        res.redirect(urlRedirect)
+        res.redirect({ message: "Set cookies" })
     } catch (err) {
         next(err)
     }
