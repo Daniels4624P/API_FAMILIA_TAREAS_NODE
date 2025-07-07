@@ -196,7 +196,7 @@ router.get('/x/callback', async (req, res, next) => {
         })
 
         const urlRedirect = config.nodeEnv === 'production' ? 'https://familia-tareas.netlify.app' : 'http://localhost:5173'
-        res.redirect(urlRedirect)
+        res.json({ message: "Set cookies" })
     } catch (err) {
         next(err)
     }
