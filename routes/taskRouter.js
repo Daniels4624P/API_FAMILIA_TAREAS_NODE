@@ -17,7 +17,7 @@ router.post('/', verifyToken, async (req, res, next) => {
             const task = req.body
             const accessTokenGoogle = req.cookies.accessTokenGoogle
             const response = await service.createTask(task, userId, accessTokenGoogle)
-            res.status(201).json({ newTask: response.newTask, resultCalendar: response.result })
+            return res.status(201).json({ newTask: response.newTask, resultCalendar: response.result })
         } catch (err) {
             next(err)
         }
@@ -31,7 +31,7 @@ router.patch('/:id', verifyToken, async (req, res, next) => {
             const changes = req.body
             const accessTokenGoogle = req.cookies.accessTokenGoogle
             const response = await service.updateTask(id, changes, userId, accessTokenGoogle)
-            res.json(response)
+            return res.json(response)
         } catch (err) {
             next(err)
         }
@@ -44,7 +44,7 @@ router.delete('/:id', verifyToken, async (req, res, next) => {
             const { id } = req.params
             const accessTokenGoogle = req.cookies.accessTokenGoogle
             const response = await service.deleteTask(id, userId, accessTokenGoogle)
-            res.json(response)
+            return res.json(response)
         } catch (err) {
             next(err)
         }
@@ -57,7 +57,7 @@ router.patch('/:id/complete/task/public', verifyToken, async (req, res, next) =>
             const { id } = req.params
             const numberRepeat = req.body.numberRepeat
             const response = await service.completeTaskPublic(id, userId, numberRepeat)
-            res.json(response)
+            return res.json(response)
         } catch (err) {
             next(err)
         }
@@ -69,7 +69,7 @@ router.patch('/:id/complete/task/private', verifyToken, async (req, res, next) =
             const userId = req.user.sub
             const { id } = req.params
             const response = await service.completeTaskPrivate(id, userId)
-            res.json(response)
+            return res.json(response)
         } catch (err) {
             next(err)
         }
@@ -79,7 +79,7 @@ router.patch('/:id/complete/task/private', verifyToken, async (req, res, next) =
 router.patch('/descompleted/tasks', verifyToken, async (req, res, next) => {
         try {
             const response = await service.descompletedTasks()
-            res.json(response)
+            return res.json(response)
         } catch (err) {
             next(err)
         }
@@ -91,7 +91,7 @@ router.get('/tasks/monthly', verifyToken, async (req, res, next) => {
             const query = req.query
             const user = req.user.sub
             const response = await service.tasksForMonth(user, query)
-            res.json(response)
+            return res.json(response)
         } catch (err) {
             next(err)
         }
@@ -114,7 +114,7 @@ router.get('/google/handler', verifyToken, async (req, res, next) => {
             state
         })
 
-        res.json(`${GOOGLE_AUTH_URL}?${query}`)
+        return res.json(`${GOOGLE_AUTH_URL}?${query}`)
     } catch (err) {
         next(err)
     }
@@ -123,7 +123,7 @@ router.get('/google/handler', verifyToken, async (req, res, next) => {
 router.get('/google/callback', async (req, res, next) => {
     const urlRedirect = config.nodeEnv === 'production' ? 'https://familia-tareas.netlify.app' : 'http://localhost:5173'
     if (req.query.state !== session.state) {
-        res.redirect(urlRedirect)
+        return res.redirect(urlRedirect)
     }
 
     const options = {
@@ -151,7 +151,7 @@ router.get('/google/callback', async (req, res, next) => {
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
-        res.redirect({ message: "Set cookies" })
+        return res.redirect({ message: "Set cookies" })
     } catch (err) {
         next(err)
     }
@@ -163,7 +163,7 @@ router.patch('/update/google/event/:id', async (req, res, next) => {
         const { id } = req.params
         const changes = req.body
         const result = await service.updateEventGoogle(accessTokenGoogle, id, changes)
-        res.json(result)
+        return res.json(result)
     } catch (error) {
         next(error)
     }
@@ -174,7 +174,7 @@ router.delete('/update/google/event/:id', async (req, res, next) => {
         const accessTokenGoogle = req.cookies.accessTokenGoogle
         const { id } = req.params
         const result = await service.deleteEventGoogle(accessTokenGoogle, id)
-        res.json(result)
+        return res.json(result)
     } catch (error) {
         next(error)
     }
