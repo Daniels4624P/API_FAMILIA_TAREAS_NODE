@@ -98,26 +98,21 @@ router.delete('/logout', verifyToken, async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refreshToken
         const response = await serviceAuth.logout(refreshToken)
-        console.log('Cookies antes de borrarlas: ' + req.cookies)
         res.clearCookie('accessToken', {
             httpOnly: true,
-            maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
         res.clearCookie('refreshToken', {
             httpOnly: true,
-            maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
         res.clearCookie('accessTokenGoogle', {
             httpOnly: true,
-            maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
-        console.log('Cookies despues de borrarlas: ' + req.cookies)
         return res.json(response)
     } catch (err) {
         next(err)
