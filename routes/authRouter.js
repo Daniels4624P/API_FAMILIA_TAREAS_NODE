@@ -18,13 +18,14 @@ router.post('/register', async (req, res, next) => {
             maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
-        }).cookie('refreshToken', refreshToken, {
+        })
+        res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 604800000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
-        res.status(201).json(user)
+        return res.status(201).json(user)
     } catch (err) {
         next(err)
     }
@@ -39,13 +40,14 @@ router.post('/login', async (req, res, next) => {
             maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
-        }).cookie('refreshToken', refreshToken, {
+        })
+        res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 604800000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
-        res.status(201).json(user)
+        return res.status(201).json(user)
     } catch (err) {
         next(err)
     }
@@ -56,7 +58,7 @@ router.get('/profile', verifyToken, async (req, res, next) => {
             const user = req.user
             const perfil = await serviceUser.getUserForId(user.sub)
             delete perfil.dataValues.password
-            res.json(perfil)
+            return res.json(perfil)
         } catch (err) {
             next(err)
         }
@@ -68,7 +70,7 @@ router.patch('/profile', verifyToken, async (req, res, next) => {
         const changes = req.body
         const userUpdated = await serviceUser.update(user.sub, changes)
         delete userUpdated.dataValues.password
-        res.json(userUpdated)
+        return res.json(userUpdated)
     } catch (err) {
         next(err)
     }
@@ -78,7 +80,7 @@ router.post('/recovery', async (req, res, next) => {
     try {
         const { email } = req.body
         const response = await serviceAuth.sendMail(email)
-        res.json(response)
+        return res.json(response)
     } catch (err) {
         next(err)
     }
@@ -88,7 +90,7 @@ router.post('/change-password', async (req, res, next) => {
     try {
         const { token, newPassword } = req.body
         const response = await serviceAuth.changePassword(token, newPassword)
-        res.json(response)
+        return res.json(response)
     } catch (err) {
         next(err)
     }
@@ -128,14 +130,15 @@ router.post('/refresh', async (req, res, next) => {
             maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
-        }).cookie('refreshToken', newRefreshToken, {
+        })
+        res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
             maxAge: 604800000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
         })
 
-        res.json({ message: 'Tokens Refrescados' })
+        return res.json({ message: 'Tokens Refrescados' })
     } catch (err) {
         next(err)
     }
@@ -145,7 +148,7 @@ router.get('/google/handler', (req, res, next) => {
     try {
         const { mobile, redirect_uri } = req.query
         const { url } = serviceAuth.googleHandler(mobile, redirect_uri)
-        res.json(url)
+        return res.json(url)
     } catch (err) {
         next(err)
     }
@@ -162,12 +165,14 @@ router.get('/google/callback', async (req, res, next) => {
             maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
-        }).cookie('refreshToken', refreshToken, {
+        })
+        res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
-        }).cookie('accessTokenGoogle', accessTokenGoogle, {
+        })
+        res.cookie('accessTokenGoogle', accessTokenGoogle, {
             httpOnly: true,
             maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
@@ -175,7 +180,7 @@ router.get('/google/callback', async (req, res, next) => {
         })
 
         const urlRedirect = config.nodeEnv === 'production' ? 'https://familia-tareas.netlify.app' : 'http://localhost:5173'
-        res.json({ message: "Set cookies" })
+        return res.json({ message: "Set cookies" })
     } catch (err) {
         next(err)
     }
@@ -186,7 +191,7 @@ router.get('/x/handler', (req, res, next) => {
         const { mobile, redirect_uri } = req.query
         const { url } = serviceAuth.xHandler(mobile, redirect_uri)
         
-        res.json(url)
+        return res.json(url)
     } catch (err) {
         next(err)
     }
@@ -203,7 +208,8 @@ router.get('/x/callback', async (req, res, next) => {
             maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
             secure: config.nodeEnv === 'production' ? true : false 
-        }).cookie('refreshToken', refreshToken, {
+        })
+        res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             maxAge: 3600000,
             sameSite: config.nodeEnv === 'production' ? 'none' : 'strict',
@@ -211,7 +217,7 @@ router.get('/x/callback', async (req, res, next) => {
         })
 
         const urlRedirect = config.nodeEnv === 'production' ? 'https://familia-tareas.netlify.app' : 'http://localhost:5173'
-        res.json({ message: "Set cookies" })
+        return res.json({ message: "Set cookies" })
     } catch (err) {
         next(err)
     }
@@ -220,9 +226,9 @@ router.get('/x/callback', async (req, res, next) => {
 router.get('/google-calendar-status', (req, res, next) => {
     try {
         if (req.cookies.accessTokenGoogle) {
-            res.json({ hasAccess: true })
+            return res.json({ hasAccess: true })
         } else {
-            res.json({ hasAccess: false })
+            return res.json({ hasAccess: false })
         }
     } catch (err) {
         next(err)
